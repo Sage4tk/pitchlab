@@ -1,22 +1,32 @@
+import { lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { Center, Spinner } from '@chakra-ui/react'
 import { Navbar } from '@/components/Navbar'
 import { ProtectedRoute } from '@/components/ProtectedRoute'
 import { Landing } from '@/pages/Landing'
-import { Login } from '@/pages/Login'
-import { Signup } from '@/pages/Signup'
-import { ForgotPassword } from '@/pages/ForgotPassword'
-import { Dashboard } from '@/pages/Dashboard'
-import { Interval } from '@/pages/exercises/Interval'
-import { Chord } from '@/pages/exercises/Chord'
-import { Melody } from '@/pages/exercises/Melody'
-import { Rhythm } from '@/pages/exercises/Rhythm'
-import { Progress } from '@/pages/Progress'
-import { Settings } from '@/pages/Settings'
+
+const Login = lazy(() => import('@/pages/Login').then(m => ({ default: m.Login })))
+const Signup = lazy(() => import('@/pages/Signup').then(m => ({ default: m.Signup })))
+const ForgotPassword = lazy(() => import('@/pages/ForgotPassword').then(m => ({ default: m.ForgotPassword })))
+const Dashboard = lazy(() => import('@/pages/Dashboard').then(m => ({ default: m.Dashboard })))
+const Interval = lazy(() => import('@/pages/exercises/Interval').then(m => ({ default: m.Interval })))
+const Chord = lazy(() => import('@/pages/exercises/Chord').then(m => ({ default: m.Chord })))
+const Melody = lazy(() => import('@/pages/exercises/Melody').then(m => ({ default: m.Melody })))
+const Rhythm = lazy(() => import('@/pages/exercises/Rhythm').then(m => ({ default: m.Rhythm })))
+const Progress = lazy(() => import('@/pages/Progress').then(m => ({ default: m.Progress })))
+const Settings = lazy(() => import('@/pages/Settings').then(m => ({ default: m.Settings })))
+
+const PageSpinner = () => (
+  <Center minH="100vh">
+    <Spinner size="xl" colorPalette="blue" />
+  </Center>
+)
 
 export default function App() {
   return (
     <BrowserRouter>
       <Navbar />
+      <Suspense fallback={<PageSpinner />}>
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
@@ -79,6 +89,7 @@ export default function App() {
           }
         />
       </Routes>
+      </Suspense>
     </BrowserRouter>
   )
 }

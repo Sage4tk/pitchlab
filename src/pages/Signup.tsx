@@ -1,14 +1,18 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { AuthForm } from '@/components/AuthForm'
 import { GoogleButton } from '@/components/GoogleButton'
 import { signUp, signInWithGoogle } from '@/lib/firebaseAuth'
 import { Box, Stack, Text } from '@chakra-ui/react'
+import { useSession } from '@/hooks/useSession'
 
 export function Signup() {
   const navigate = useNavigate()
   const [error, setError] = useState('')
   const [done, setDone] = useState(false)
+  const { user, loading } = useSession()
+
+  if (!loading && user) return <Navigate to="/dashboard" replace />
 
   async function handleSubmit(email: string, password: string) {
     setError('')
