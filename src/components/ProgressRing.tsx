@@ -1,5 +1,3 @@
-import { Flex, Text } from '@chakra-ui/react'
-
 interface Props {
   value: number // 0–100
   label: string
@@ -12,45 +10,56 @@ export function ProgressRing({ value, label, size = 80 }: Props) {
   const offset = circumference - (value / 100) * circumference
 
   return (
-    <Flex direction="column" align="center" gap={1}>
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
       <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+        {/* Track */}
         <circle
           cx={size / 2}
           cy={size / 2}
           r={radius}
           fill="none"
-          stroke="#e2e8f0"
-          strokeWidth={8}
+          stroke="var(--border)"
+          strokeWidth={6}
         />
+        {/* Progress */}
         <circle
           cx={size / 2}
           cy={size / 2}
           r={radius}
           fill="none"
-          stroke="#3182ce"
-          strokeWidth={8}
+          stroke="var(--accent)"
+          strokeWidth={6}
           strokeDasharray={circumference}
           strokeDashoffset={offset}
           strokeLinecap="round"
           transform={`rotate(-90 ${size / 2} ${size / 2})`}
+          style={{ transition: 'stroke-dashoffset 0.5s ease' }}
         />
+        {/* Label */}
         <text
           x="50%"
           y="50%"
           dominantBaseline="middle"
           textAnchor="middle"
-          fontSize={14}
-          fontWeight="bold"
-          fill="#2D3748"
+          fontSize={size < 60 ? 11 : 13}
+          fontWeight="500"
+          fill="var(--text)"
+          fontFamily="var(--font-body)"
         >
           {Math.round(value)}%
         </text>
       </svg>
       {label && (
-        <Text fontSize="xs" color="fg.subtle">
+        <span style={{
+          fontSize: '10px',
+          color: 'var(--text-muted)',
+          fontFamily: 'var(--font-body)',
+          letterSpacing: '0.06em',
+          textTransform: 'uppercase',
+        }}>
           {label}
-        </Text>
+        </span>
       )}
-    </Flex>
+    </div>
   )
 }

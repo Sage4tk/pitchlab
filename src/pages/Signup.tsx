@@ -3,8 +3,8 @@ import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { AuthForm } from '@/components/AuthForm'
 import { GoogleButton } from '@/components/GoogleButton'
 import { signUp, signInWithGoogle } from '@/lib/firebaseAuth'
-import { Box, Stack, Text } from '@chakra-ui/react'
 import { useSession } from '@/hooks/useSession'
+import { AuthShell } from '@/pages/Login'
 
 export function Signup() {
   const navigate = useNavigate()
@@ -37,119 +37,131 @@ export function Signup() {
   if (done) {
     return (
       <AuthShell>
-        <Stack gap={4} textAlign="center" align="center">
-          <Box fontSize="4xl">✉️</Box>
-          <Box>
-            <Text fontWeight="800" fontSize="xl" color="#0f172a" letterSpacing="-0.02em">
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px', textAlign: 'center' }}>
+          <span style={{
+            fontFamily: 'var(--font-display)',
+            fontSize: '48px',
+            color: 'var(--accent)',
+          }}>
+            ♩
+          </span>
+          <div>
+            <div style={{
+              fontFamily: 'var(--font-display)',
+              fontSize: '22px',
+              fontWeight: 600,
+              color: 'var(--text)',
+              letterSpacing: '-0.01em',
+            }}>
               Check your email
-            </Text>
-            <Text fontSize="sm" color="#64748b" mt={2} lineHeight="1.6">
+            </div>
+            <p style={{
+              fontFamily: 'var(--font-body)',
+              fontSize: '12px',
+              color: 'var(--text-muted)',
+              marginTop: '8px',
+              lineHeight: 1.75,
+              letterSpacing: '0.02em',
+            }}>
               We sent a verification link to your inbox. Once verified, you're good to go.
-            </Text>
-          </Box>
+            </p>
+          </div>
           <Link
             to="/login"
             style={{
+              fontFamily: 'var(--font-body)',
+              fontSize: '12px',
+              letterSpacing: '0.08em',
+              textTransform: 'uppercase',
+              fontWeight: 600,
               display: 'inline-block',
               padding: '10px 28px',
-              background: 'linear-gradient(135deg, #6366f1, #4f46e5)',
-              color: 'white',
-              borderRadius: '10px',
+              background: 'var(--accent)',
+              color: '#0F0D0B',
+              borderRadius: 'var(--radius)',
               textDecoration: 'none',
-              fontSize: '0.9rem',
-              fontWeight: 700,
-              boxShadow: '0 4px 16px rgba(79,70,229,0.4)',
+              boxShadow: '0 4px 16px var(--accent-glow)',
             }}
           >
             Go to login
           </Link>
-        </Stack>
+        </div>
       </AuthShell>
     )
   }
 
   return (
     <AuthShell>
-      <Stack gap={5}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
         {/* Brand */}
-        <Box textAlign="center" mb={2}>
+        <div style={{ textAlign: 'center' }}>
           <Link to="/" style={{ textDecoration: 'none' }}>
-            <Text fontWeight="900" fontSize="2xl" color="#4f46e5" letterSpacing="-0.04em">
+            <span style={{
+              fontFamily: 'var(--font-display)',
+              fontSize: '28px',
+              fontWeight: 600,
+              color: 'var(--accent)',
+              letterSpacing: '0.02em',
+            }}>
               Pitchlab
-            </Text>
+            </span>
           </Link>
-          <Text fontWeight="800" fontSize="xl" color="#0f172a" letterSpacing="-0.02em" mt={3}>
+          <div style={{
+            fontFamily: 'var(--font-display)',
+            fontSize: '22px',
+            fontWeight: 500,
+            color: 'var(--text)',
+            marginTop: '12px',
+            letterSpacing: '-0.01em',
+          }}>
             Create your account
-          </Text>
-          <Text fontSize="sm" color="#64748b" mt={1}>
+          </div>
+          <div style={{
+            fontFamily: 'var(--font-body)',
+            fontSize: '12px',
+            color: 'var(--text-muted)',
+            marginTop: '4px',
+            letterSpacing: '0.03em',
+          }}>
             Free forever. No credit card needed.
-          </Text>
-        </Box>
+          </div>
+        </div>
 
         <GoogleButton onClick={handleGoogle} label="Sign up with Google" />
 
         {/* Divider */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div style={{ flex: 1, height: '1px', background: '#e2e8f0' }} />
-          <Text fontSize="xs" color="#94a3b8" fontWeight="500">or continue with email</Text>
-          <div style={{ flex: 1, height: '1px', background: '#e2e8f0' }} />
+          <div style={{ flex: 1, height: '1px', background: 'var(--border)' }} />
+          <span style={{
+            fontFamily: 'var(--font-body)',
+            fontSize: '10px',
+            color: 'var(--text-faint)',
+            letterSpacing: '0.08em',
+            textTransform: 'uppercase',
+          }}>
+            or email
+          </span>
+          <div style={{ flex: 1, height: '1px', background: 'var(--border)' }} />
         </div>
 
         <AuthForm mode="signup" onSubmit={handleSubmit} error={error} />
 
-        <Text fontSize="sm" color="#64748b" textAlign="center">
+        <span style={{
+          fontFamily: 'var(--font-body)',
+          fontSize: '12px',
+          color: 'var(--text-muted)',
+          textAlign: 'center',
+        }}>
           Already have an account?{' '}
-          <Link to="/login" style={{ color: '#6366f1', textDecoration: 'none', fontWeight: 600 }}>
+          <Link to="/login" style={{
+            color: 'var(--accent)',
+            textDecoration: 'none',
+            fontWeight: 500,
+          }}>
             Log in
           </Link>
-        </Text>
-      </Stack>
+        </span>
+      </div>
     </AuthShell>
-  )
-}
-
-function AuthShell({ children }: { children: React.ReactNode }) {
-  return (
-    <Box
-      minH="100vh"
-      background="linear-gradient(160deg, #0f0c29 0%, #1e1b4b 45%, #312e81 100%)"
-      position="relative"
-      overflow="hidden"
-      display="flex"
-      alignItems="center"
-      justifyContent="center"
-      px={4}
-      py={12}
-    >
-      <Box
-        position="absolute"
-        inset={0}
-        opacity={0.04}
-        backgroundImage="radial-gradient(circle, white 1px, transparent 1px)"
-        backgroundSize="32px 32px"
-        pointerEvents="none"
-      />
-      <Box
-        position="absolute"
-        top="-80px"
-        left="50%"
-        transform="translateX(-50%)"
-        w="560px"
-        h="320px"
-        background="radial-gradient(ellipse, rgba(99,102,241,0.28) 0%, transparent 70%)"
-        pointerEvents="none"
-      />
-      <Box
-        width="full"
-        maxW="420px"
-        bg="white"
-        borderRadius="24px"
-        boxShadow="0 32px 80px rgba(0,0,0,0.45), 0 0 0 1px rgba(255,255,255,0.08)"
-        p={{ base: 7, sm: 9 }}
-        position="relative"
-      >
-        {children}
-      </Box>
-    </Box>
   )
 }

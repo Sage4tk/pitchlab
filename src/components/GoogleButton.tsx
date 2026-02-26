@@ -14,30 +14,28 @@ export function GoogleButton({ onClick, label = 'Continue with Google' }: Props)
         alignItems: 'center',
         justifyContent: 'center',
         gap: '10px',
-        padding: '11px 16px',
-        background: 'white',
-        border: '1.5px solid #e2e8f0',
-        borderRadius: '10px',
-        fontSize: '0.9rem',
-        fontWeight: 600,
-        color: '#1a202c',
+        padding: '10px 16px',
+        background: 'var(--bg-surface-2)',
+        border: '1px solid var(--border)',
+        borderRadius: 'var(--radius)',
+        fontSize: '12px',
+        fontWeight: 500,
+        letterSpacing: '0.04em',
+        color: 'var(--text)',
         cursor: 'pointer',
-        boxShadow: '0 1px 4px rgba(0,0,0,0.07)',
-        transition: 'all 0.15s ease',
-        fontFamily: 'inherit',
+        fontFamily: 'var(--font-body)',
+        transition: 'border-color 0.15s, background 0.15s',
       }}
       onMouseEnter={(e) => {
-        e.currentTarget.style.borderColor = '#6366f1'
-        e.currentTarget.style.boxShadow = '0 4px 16px rgba(99,102,241,0.18)'
-        e.currentTarget.style.transform = 'translateY(-1px)'
+        e.currentTarget.style.borderColor = 'var(--accent)'
+        e.currentTarget.style.background = 'var(--accent-dim)'
       }}
       onMouseLeave={(e) => {
-        e.currentTarget.style.borderColor = '#e2e8f0'
-        e.currentTarget.style.boxShadow = '0 1px 4px rgba(0,0,0,0.07)'
-        e.currentTarget.style.transform = 'translateY(0)'
+        e.currentTarget.style.borderColor = 'var(--border)'
+        e.currentTarget.style.background = 'var(--bg-surface-2)'
       }}
     >
-      <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true">
+      <svg width="16" height="16" viewBox="0 0 48 48" aria-hidden="true">
         <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z" />
         <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z" />
         <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z" />

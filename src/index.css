@@ -1,8 +1,84 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=DM+Mono:ital,wght@0,400;0,500;1,400&display=swap');
+
+/* ─── Design Tokens ─────────────────────────────────────────── */
+:root {
+  /* Backgrounds */
+  --bg:           #0F0D0B;
+  --bg-surface:   #181410;
+  --bg-surface-2: #211C17;
+  --bg-highlight: #2A231B;
+
+  /* Borders */
+  --border:       #342C22;
+  --border-muted: #221C16;
+
+  /* Text */
+  --text:         #EDE4D0;
+  --text-muted:   #7A6E5A;
+  --text-faint:   #4A4036;
+
+  /* Accent — amber/gold */
+  --accent:       #D4923A;
+  --accent-bright:#E8A84A;
+  --accent-dim:   rgba(212, 146, 58, 0.10);
+  --accent-glow:  rgba(212, 146, 58, 0.22);
+
+  /* Semantic */
+  --success:      #4D8B5E;
+  --error:        #B85040;
+  --success-dim:  rgba(77, 139, 94, 0.12);
+  --error-dim:    rgba(184, 80, 64, 0.12);
+
+  /* Typography */
+  --font-display: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+  --font-body:    'DM Mono', 'Courier New', monospace;
+
+  /* Geometry */
+  --radius:    5px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+}
+
+/* ─── Reset & Base ──────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; }
+
+html {
+  color-scheme: dark;
+}
+
 body {
   margin: 0;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: #f0f4ff;
+  min-height: 100vh;
+}
+
+/* ─── Scrollbar ─────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-faint); }
+
+/* ─── Typography utilities ──────────────────────────────────── */
+.display {
+  font-family: var(--font-display);
+  letter-spacing: -0.01em;
+}
+
+/* ─── Chakra overrides — force dark surfaces ────────────────── */
+/* Card roots */
+[data-scope="card"][data-part="root"] {
+  background: var(--bg-surface) !important;
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+}
+
+/* Chakra default body bg */
+body[data-theme], :root[data-theme] {
+  --chakra-colors-chakra-body-bg: var(--bg);
 }

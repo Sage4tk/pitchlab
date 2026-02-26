@@ -7,18 +7,7 @@ import { PianoKeyboard } from '@/components/PianoKeyboard'
 import { PlayButton } from '@/components/PlayButton'
 import { playMelody, playNote } from '@/audio/AudioEngine'
 import { motion, AnimatePresence } from 'framer-motion'
-import {
-  Center,
-  Card,
-  VStack,
-  Flex,
-  Heading,
-  HStack,
-  Button,
-  Text,
-  Badge,
-  Box,
-} from '@chakra-ui/react'
+import { ExerciseShell, FeedbackRow } from '@/pages/exercises/Interval'
 
 export function Melody() {
   const { difficulty, setDifficulty } = useExerciseStore()
@@ -63,144 +52,172 @@ export function Melody() {
   }
 
   return (
-    <Center minH="100vh" bg="#f0f4ff" px={4} py={12}>
-      <Card.Root width="full" maxW="2xl" boxShadow="0 4px 24px rgba(99,102,241,0.1)" border="1px solid" borderColor="purple.100">
-        <Card.Body gap={6}>
-          <Flex align="center" justify="space-between">
-            <Heading size="xl" fontWeight="800" letterSpacing="-0.02em">
-              Melody
-            </Heading>
-            <HStack gap={2}>
-              {([1, 2, 3] as const).map((d) => (
-                <Button
-                  key={d}
-                  size="sm"
-                  onClick={() => setDifficulty(d)}
-                  colorPalette={difficulty === d ? 'purple' : undefined}
-                  variant={difficulty === d ? 'solid' : 'outline'}
-                  fontWeight={difficulty === d ? '700' : '500'}
-                >
-                  {d}
-                </Button>
-              ))}
-            </HStack>
-          </Flex>
+    <ExerciseShell
+      title="Melody"
+      symbol="𝄞"
+      difficulty={difficulty}
+      setDifficulty={setDifficulty}
+    >
+      {phase === 'idle' && <PlayButton label="Play Melody" onClick={play} />}
 
-          {phase === 'idle' && <PlayButton label="Play Melody" onClick={play} />}
-
-          <AnimatePresence>
-            {(phase === 'answering' || phase === 'feedback') && (
-              <motion.div
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.25 }}
+      <AnimatePresence>
+        {(phase === 'answering' || phase === 'feedback') && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.22 }}
+          >
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <button
+                onClick={handleReplay}
+                style={{
+                  alignSelf: 'flex-start',
+                  background: 'none',
+                  border: '1px solid var(--border)',
+                  borderRadius: 'var(--radius)',
+                  color: 'var(--text-muted)',
+                  fontFamily: 'var(--font-body)',
+                  fontSize: '11px',
+                  letterSpacing: '0.06em',
+                  textTransform: 'uppercase',
+                  padding: '6px 12px',
+                  cursor: 'pointer',
+                  transition: 'border-color 0.15s, color 0.15s',
+                }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.borderColor = 'var(--accent)'
+                  e.currentTarget.style.color = 'var(--accent)'
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.borderColor = 'var(--border)'
+                  e.currentTarget.style.color = 'var(--text-muted)'
+                }}
               >
-                <VStack gap={4} align="stretch">
-                  <Button variant="outline" size="sm" onClick={handleReplay}>
-                    ↺ Replay
-                  </Button>
+                ↺ Replay
+              </button>
 
-                  <Box
-                    display="flex"
-                    flexWrap="wrap"
-                    gap={2}
-                    minH={10}
-                    p={3}
-                    bg="gray.50"
-                    rounded="lg"
-                    border="1px solid"
-                    borderColor="gray.200"
+              {/* Note input display */}
+              <div style={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                gap: '6px',
+                minHeight: '40px',
+                padding: '10px 12px',
+                background: 'var(--bg-surface-2)',
+                border: '1px solid var(--border)',
+                borderRadius: 'var(--radius)',
+              }}>
+                {inputNotes.map((n, i) => (
+                  <span
+                    key={i}
+                    style={{
+                      display: 'inline-block',
+                      padding: '2px 8px',
+                      background: 'var(--accent-dim)',
+                      border: '1px solid var(--border)',
+                      borderRadius: 'var(--radius)',
+                      fontFamily: 'var(--font-body)',
+                      fontSize: '12px',
+                      color: 'var(--accent)',
+                      fontWeight: 500,
+                    }}
                   >
-                    {inputNotes.map((n, i) => (
-                      <Badge
-                        key={i}
-                        colorPalette="purple"
-                        variant="subtle"
-                        px={2}
-                        py={1}
-                        rounded="md"
-                        fontWeight="600"
-                      >
-                        {n}
-                      </Badge>
-                    ))}
-                    {phase === 'answering' && inputNotes.length === 0 && (
-                      <Text fontSize="sm" color="fg.muted" alignSelf="center">
-                        Click the piano keys below...
-                      </Text>
-                    )}
-                  </Box>
+                    {n}
+                  </span>
+                ))}
+                {phase === 'answering' && inputNotes.length === 0 && (
+                  <span style={{
+                    fontFamily: 'var(--font-body)',
+                    fontSize: '11px',
+                    color: 'var(--text-faint)',
+                    letterSpacing: '0.04em',
+                    alignSelf: 'center',
+                  }}>
+                    Click the piano keys below...
+                  </span>
+                )}
+              </div>
 
-                  <Box overflowX="auto" rounded="lg" border="1px solid" borderColor="gray.200" p={2}>
-                    <PianoKeyboard
-                      onKeyPress={handleKeyPress}
-                      highlightNotes={phase === 'feedback' ? question?.notes : []}
-                      disabled={phase === 'feedback'}
-                    />
-                  </Box>
+              {/* Piano keyboard */}
+              <div style={{
+                overflowX: 'auto',
+                border: '1px solid var(--border)',
+                borderRadius: 'var(--radius)',
+                padding: '8px',
+                background: 'var(--bg-surface-2)',
+              }}>
+                <PianoKeyboard
+                  onKeyPress={handleKeyPress}
+                  highlightNotes={phase === 'feedback' ? question?.notes : []}
+                  disabled={phase === 'feedback'}
+                />
+              </div>
 
-                  {phase === 'answering' && (
-                    <HStack gap={3}>
-                      <Button
-                        variant="outline"
-                        onClick={handleUndo}
-                        disabled={inputNotes.length === 0}
-                      >
-                        ← Undo
-                      </Button>
-                      <Button
-                        flex={1}
-                        background="linear-gradient(135deg, #6366f1, #4f46e5)"
-                        color="white"
-                        fontWeight="700"
-                        onClick={handleSubmit}
-                        disabled={inputNotes.length === 0}
-                        boxShadow="0 4px 16px rgba(79,70,229,0.3)"
-                      >
-                        Submit ({inputNotes.length} notes)
-                      </Button>
-                    </HStack>
-                  )}
-                </VStack>
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          <AnimatePresence>
-            {phase === 'feedback' && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.92 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.2 }}
-              >
-                <VStack gap={4}>
-                  <Text
-                    fontSize="xl"
-                    fontWeight="800"
-                    color={isCorrect ? 'green.600' : 'red.500'}
-                    letterSpacing="-0.01em"
+              {phase === 'answering' && (
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  <button
+                    onClick={handleUndo}
+                    disabled={inputNotes.length === 0}
+                    style={{
+                      background: 'none',
+                      border: '1px solid var(--border)',
+                      borderRadius: 'var(--radius)',
+                      color: inputNotes.length === 0 ? 'var(--text-faint)' : 'var(--text-muted)',
+                      fontFamily: 'var(--font-body)',
+                      fontSize: '11px',
+                      letterSpacing: '0.06em',
+                      textTransform: 'uppercase',
+                      padding: '8px 16px',
+                      cursor: inputNotes.length === 0 ? 'not-allowed' : 'pointer',
+                      transition: 'border-color 0.15s, color 0.15s',
+                    }}
                   >
-                    {isCorrect ? '✓ Correct!' : `✗ Correct: ${question?.notes.join(', ')}`}
-                  </Text>
-                  <Button
-                    size="lg"
-                    width="full"
-                    background="linear-gradient(135deg, #6366f1, #4f46e5)"
-                    color="white"
-                    fontWeight="700"
-                    boxShadow="0 4px 16px rgba(79,70,229,0.35)"
-                    _hover={{ boxShadow: '0 6px 24px rgba(79,70,229,0.5)', transform: 'translateY(-1px)' }}
-                    style={{ transition: 'all 0.15s ease' }}
-                    onClick={handleNext}
+                    ← Undo
+                  </button>
+                  <button
+                    onClick={handleSubmit}
+                    disabled={inputNotes.length === 0}
+                    style={{
+                      flex: 1,
+                      padding: '8px',
+                      background: inputNotes.length === 0 ? 'var(--bg-highlight)' : 'var(--accent)',
+                      color: inputNotes.length === 0 ? 'var(--text-faint)' : '#0F0D0B',
+                      border: 'none',
+                      borderRadius: 'var(--radius)',
+                      fontFamily: 'var(--font-body)',
+                      fontSize: '11px',
+                      fontWeight: 600,
+                      letterSpacing: '0.06em',
+                      textTransform: 'uppercase',
+                      cursor: inputNotes.length === 0 ? 'not-allowed' : 'pointer',
+                      boxShadow: inputNotes.length > 0 ? '0 2px 10px var(--accent-glow)' : 'none',
+                      transition: 'background 0.15s',
+                    }}
                   >
-                    Next →
-                  </Button>
-                </VStack>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </Card.Body>
-      </Card.Root>
-    </Center>
+                    Submit ({inputNotes.length} notes)
+                  </button>
+                </div>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {phase === 'feedback' && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.94 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.18 }}
+          >
+            <FeedbackRow
+              isCorrect={isCorrect}
+              message={isCorrect ? 'Correct' : `Correct: ${question?.notes.join(', ')}`}
+              onNext={handleNext}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </ExerciseShell>
   )
 }

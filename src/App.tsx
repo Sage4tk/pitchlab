@@ -17,8 +17,8 @@ const Progress = lazy(() => import('@/pages/Progress').then(m => ({ default: m.P
 const Settings = lazy(() => import('@/pages/Settings').then(m => ({ default: m.Settings })))
 
 const PageSpinner = () => (
-  <Center minH="100vh">
-    <Spinner size="xl" colorPalette="blue" />
+  <Center minH="100vh" bg="var(--bg)" style={{ background: 'var(--bg)' }}>
+    <Spinner size="xl" style={{ color: 'var(--accent)' }} />
   </Center>
 )
 

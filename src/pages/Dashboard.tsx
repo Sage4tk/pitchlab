@@ -5,54 +5,25 @@ import { useProgressStore } from '@/store/useProgressStore'
 import { getStreak } from '@/db/streaks'
 import { ProgressRing } from '@/components/ProgressRing'
 import type { Category } from '@/exercises/types'
-import {
-  Box,
-  VStack,
-  Flex,
-  Heading,
-  Text,
-  HStack,
-  SimpleGrid,
-  Card,
-  Button,
-} from '@chakra-ui/react'
+import { motion } from 'framer-motion'
 
 const EXERCISES: {
   category: Category
   label: string
-  icon: string
+  symbol: string
   path: string
-  gradient: string
+  desc: string
 }[] = [
-  {
-    category: 'interval',
-    label: 'Intervals',
-    icon: '🎵',
-    path: '/exercises/interval',
-    gradient: 'linear-gradient(135deg, #dbeafe, #bfdbfe)',
-  },
-  {
-    category: 'chord',
-    label: 'Chords',
-    icon: '🎹',
-    path: '/exercises/chord',
-    gradient: 'linear-gradient(135deg, #ede9fe, #ddd6fe)',
-  },
-  {
-    category: 'melody',
-    label: 'Melody',
-    icon: '🎼',
-    path: '/exercises/melody',
-    gradient: 'linear-gradient(135deg, #d1fae5, #a7f3d0)',
-  },
-  {
-    category: 'rhythm',
-    label: 'Rhythm',
-    icon: '🥁',
-    path: '/exercises/rhythm',
-    gradient: 'linear-gradient(135deg, #fef3c7, #fde68a)',
-  },
+  { category: 'interval', label: 'Intervals', symbol: '♩', path: '/exercises/interval', desc: 'Note distances by ear' },
+  { category: 'chord', label: 'Chords', symbol: '♫', path: '/exercises/chord', desc: 'Major, minor, and beyond' },
+  { category: 'melody', label: 'Melody', symbol: '𝄞', path: '/exercises/melody', desc: 'Transcribe melodic phrases' },
+  { category: 'rhythm', label: 'Rhythm', symbol: '♬', path: '/exercises/rhythm', desc: 'Tap rhythmic patterns' },
 ]
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 16 },
+  visible: { opacity: 1, y: 0 },
+}
 
 export function Dashboard() {
   const { user } = useSession()
@@ -65,111 +36,238 @@ export function Dashboard() {
   }, [user])
 
   return (
-    <Box minH="100vh" bg="#f0f4ff" px={4} py={12}>
-      <VStack maxW="3xl" mx="auto" gap={8} align="stretch">
-        <Flex align="center" justify="space-between">
-          <Heading size="xl" fontWeight="800" letterSpacing="-0.02em">
-            Dashboard
-          </Heading>
-          {streak && (
-            <HStack
-              background="linear-gradient(135deg, #fff7ed, #ffedd5)"
-              borderWidth="1px"
-              borderColor="orange.200"
-              rounded="xl"
-              px={4}
-              py={3}
-              gap={3}
-              boxShadow="0 2px 12px rgba(251,146,60,0.15)"
-            >
-              <Text fontSize="2xl">🔥</Text>
-              <VStack gap={0} align="start">
-                <Text fontSize="xl" fontWeight="800" color="orange.700" lineHeight="1">
-                  {streak.current}
-                </Text>
-                <Text fontSize="xs" color="orange.500" fontWeight="500" letterSpacing="wide">
-                  DAY STREAK
-                </Text>
-              </VStack>
-            </HStack>
-          )}
-        </Flex>
+    <div style={{
+      minHeight: '100vh',
+      background: 'var(--bg)',
+      padding: '48px 24px',
+    }}>
+      <div style={{ maxWidth: '860px', margin: '0 auto' }}>
 
-        <SimpleGrid columns={{ base: 1, sm: 2 }} gap={4}>
-          {EXERCISES.map(({ category, label, icon, path, gradient }) => {
+        {/* Header */}
+        <motion.div
+          variants={fadeUp}
+          initial="hidden"
+          animate="visible"
+          transition={{ duration: 0.5 }}
+          style={{
+            display: 'flex',
+            alignItems: 'flex-start',
+            justifyContent: 'space-between',
+            marginBottom: '40px',
+            gap: '16px',
+          }}
+        >
+          <div>
+            <h1 style={{
+              fontFamily: 'var(--font-display)',
+              fontSize: '40px',
+              fontWeight: 600,
+              color: 'var(--text)',
+              letterSpacing: '-0.01em',
+              margin: 0,
+              lineHeight: 1.1,
+            }}>
+              Dashboard
+            </h1>
+            <p style={{
+              fontFamily: 'var(--font-body)',
+              fontSize: '12px',
+              color: 'var(--text-muted)',
+              margin: '8px 0 0',
+              letterSpacing: '0.04em',
+            }}>
+              Choose a discipline to practice
+            </p>
+          </div>
+
+          {/* Streak badge */}
+          {streak && streak.current > 0 && (
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px',
+              background: 'var(--bg-surface)',
+              border: '1px solid var(--border)',
+              borderRadius: 'var(--radius-md)',
+              padding: '12px 18px',
+              flexShrink: 0,
+            }}>
+              <div style={{
+                fontFamily: 'var(--font-display)',
+                fontSize: '28px',
+                color: 'var(--accent)',
+                lineHeight: 1,
+              }}>
+                ♩
+              </div>
+              <div>
+                <div style={{
+                  fontFamily: 'var(--font-body)',
+                  fontSize: '22px',
+                  fontWeight: 500,
+                  color: 'var(--accent)',
+                  lineHeight: 1,
+                }}>
+                  {streak.current}
+                </div>
+                <div style={{
+                  fontFamily: 'var(--font-body)',
+                  fontSize: '10px',
+                  letterSpacing: '0.1em',
+                  textTransform: 'uppercase',
+                  color: 'var(--text-muted)',
+                  marginTop: '2px',
+                }}>
+                  Day Streak
+                </div>
+              </div>
+            </div>
+          )}
+        </motion.div>
+
+        {/* Exercise grid */}
+        <motion.div
+          variants={fadeUp}
+          initial="hidden"
+          animate="visible"
+          transition={{ duration: 0.5, delay: 0.1 }}
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(380px, 1fr))',
+            gap: '1px',
+            border: '1px solid var(--border)',
+            borderRadius: 'var(--radius-lg)',
+            overflow: 'hidden',
+            marginBottom: '24px',
+          }}
+        >
+          {EXERCISES.map(({ category, label, symbol, path, desc }, i) => {
             const accuracy = getAccuracy(category)
             return (
-              <Link key={category} to={path} style={{ textDecoration: 'none' }}>
-                <Card.Root
-                  variant="outline"
-                  height="full"
-                  _hover={{
-                    borderColor: 'purple.300',
-                    boxShadow: '0 8px 32px rgba(99,102,241,0.15)',
-                    transform: 'translateY(-2px)',
+              <Link key={category} to={path} style={{ textDecoration: 'none', display: 'block' }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '20px',
+                    padding: '24px 28px',
+                    background: 'var(--bg-surface)',
+                    borderRight: i % 2 === 0 ? '1px solid var(--border)' : 'none',
+                    borderBottom: i < 2 ? '1px solid var(--border)' : 'none',
+                    transition: 'background 0.15s',
+                    cursor: 'pointer',
                   }}
-                  style={{ transition: 'all 0.2s ease' }}
+                  onMouseEnter={e => {
+                    (e.currentTarget as HTMLDivElement).style.background = 'var(--bg-surface-2)'
+                  }}
+                  onMouseLeave={e => {
+                    (e.currentTarget as HTMLDivElement).style.background = 'var(--bg-surface)'
+                  }}
                 >
-                  <Card.Body>
-                    <Flex align="center" gap={5}>
-                      <Box
-                        w={14}
-                        h={14}
-                        rounded="2xl"
-                        background={gradient}
-                        display="flex"
-                        alignItems="center"
-                        justifyContent="center"
-                        fontSize="2xl"
-                        flexShrink={0}
-                        boxShadow="0 2px 8px rgba(0,0,0,0.06)"
-                      >
-                        {icon}
-                      </Box>
-                      <Box flex={1}>
-                        <Text fontWeight="700" fontSize="md" letterSpacing="-0.01em">
-                          {label}
-                        </Text>
-                        <Text fontSize="sm" color="fg.muted">
-                          Tap to practice
-                        </Text>
-                      </Box>
-                      <ProgressRing value={accuracy} label="" size={58} />
-                    </Flex>
-                  </Card.Body>
-                </Card.Root>
+                  {/* Symbol */}
+                  <div style={{
+                    fontFamily: 'var(--font-display)',
+                    fontSize: '32px',
+                    color: 'var(--accent)',
+                    lineHeight: 1,
+                    width: '40px',
+                    flexShrink: 0,
+                    opacity: 0.85,
+                  }}>
+                    {symbol}
+                  </div>
+
+                  {/* Text */}
+                  <div style={{ flex: 1 }}>
+                    <div style={{
+                      fontFamily: 'var(--font-body)',
+                      fontSize: '13px',
+                      fontWeight: 500,
+                      color: 'var(--text)',
+                      marginBottom: '3px',
+                      letterSpacing: '0.02em',
+                    }}>
+                      {label}
+                    </div>
+                    <div style={{
+                      fontFamily: 'var(--font-body)',
+                      fontSize: '11px',
+                      color: 'var(--text-muted)',
+                      letterSpacing: '0.02em',
+                    }}>
+                      {desc}
+                    </div>
+                  </div>
+
+                  {/* Progress ring */}
+                  <ProgressRing value={accuracy} label="" size={52} />
+                </div>
               </Link>
             )
           })}
-        </SimpleGrid>
+        </motion.div>
 
-        <Card.Root
-          variant="outline"
-          background="linear-gradient(135deg, #f5f3ff, #ede9fe)"
-          borderColor="purple.200"
+        {/* Quick practice CTA */}
+        <motion.div
+          variants={fadeUp}
+          initial="hidden"
+          animate="visible"
+          transition={{ duration: 0.5, delay: 0.2 }}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '16px',
+            background: 'var(--bg-surface)',
+            border: '1px solid var(--border)',
+            borderRadius: 'var(--radius-md)',
+            padding: '20px 24px',
+          }}
         >
-          <Card.Body gap={3}>
-            <Heading size="md" fontWeight="700" letterSpacing="-0.01em">
+          <div>
+            <div style={{
+              fontFamily: 'var(--font-display)',
+              fontSize: '20px',
+              fontWeight: 600,
+              color: 'var(--text)',
+              marginBottom: '4px',
+            }}>
               Quick Practice
-            </Heading>
-            <Text fontSize="sm" color="fg.muted">
-              Jump into any exercise to keep your skills sharp.
-            </Text>
-            <Link to="/exercises/interval" style={{ textDecoration: 'none', alignSelf: 'start' }}>
-              <Button
-                background="linear-gradient(135deg, #6366f1, #4f46e5)"
-                color="white"
-                fontWeight="700"
-                boxShadow="0 4px 16px rgba(79,70,229,0.3)"
-                _hover={{ boxShadow: '0 6px 24px rgba(79,70,229,0.45)', transform: 'translateY(-1px)' }}
-                style={{ transition: 'all 0.15s ease' }}
-              >
-                Start Interval Training →
-              </Button>
-            </Link>
-          </Card.Body>
-        </Card.Root>
-      </VStack>
-    </Box>
+            </div>
+            <div style={{
+              fontFamily: 'var(--font-body)',
+              fontSize: '12px',
+              color: 'var(--text-muted)',
+              letterSpacing: '0.02em',
+            }}>
+              Jump straight into interval training to keep your skills sharp.
+            </div>
+          </div>
+          <Link to="/exercises/interval" style={{ textDecoration: 'none', flexShrink: 0 }}>
+            <button style={{
+              fontFamily: 'var(--font-body)',
+              fontSize: '11px',
+              letterSpacing: '0.08em',
+              textTransform: 'uppercase',
+              fontWeight: 600,
+              background: 'var(--accent)',
+              color: '#0F0D0B',
+              border: 'none',
+              borderRadius: 'var(--radius)',
+              padding: '10px 20px',
+              cursor: 'pointer',
+              boxShadow: '0 2px 12px var(--accent-glow)',
+              whiteSpace: 'nowrap',
+              transition: 'background 0.15s',
+            }}
+              onMouseEnter={e => { e.currentTarget.style.background = 'var(--accent-bright)' }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'var(--accent)' }}
+            >
+              Start Intervals →
+            </button>
+          </Link>
+        </motion.div>
+      </div>
+    </div>
   )
 }

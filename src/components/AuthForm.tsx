@@ -18,25 +18,26 @@ export function AuthForm({ mode, onSubmit, error }: Props) {
 
   const inputStyle: React.CSSProperties = {
     width: '100%',
-    padding: '11px 14px',
-    fontSize: '0.9rem',
-    border: '1.5px solid #e2e8f0',
-    borderRadius: '10px',
+    padding: '10px 13px',
+    fontSize: '13px',
+    fontFamily: 'var(--font-body)',
+    background: 'var(--bg-surface-2)',
+    border: '1px solid var(--border)',
+    borderRadius: 'var(--radius)',
+    color: 'var(--text)',
     outline: 'none',
-    background: '#fafbff',
-    color: '#1a202c',
-    fontFamily: 'inherit',
     transition: 'border-color 0.15s, box-shadow 0.15s',
     boxSizing: 'border-box',
+    letterSpacing: '0.02em',
   }
 
   function handleFocus(e: React.FocusEvent<HTMLInputElement>) {
-    e.target.style.borderColor = '#6366f1'
-    e.target.style.boxShadow = '0 0 0 3px rgba(99,102,241,0.15)'
+    e.target.style.borderColor = 'var(--accent)'
+    e.target.style.boxShadow = '0 0 0 2px var(--accent-dim)'
   }
 
   function handleBlur(e: React.FocusEvent<HTMLInputElement>) {
-    e.target.style.borderColor = '#e2e8f0'
+    e.target.style.borderColor = 'var(--border)'
     e.target.style.boxShadow = 'none'
   }
 
@@ -44,7 +45,15 @@ export function AuthForm({ mode, onSubmit, error }: Props) {
     <form onSubmit={handleSubmit} style={{ width: '100%' }}>
       <Stack gap={4}>
         <Field.Root>
-          <Field.Label fontSize="sm" fontWeight="600" color="#374151">
+          <Field.Label style={{
+            fontSize: '11px',
+            fontWeight: 500,
+            letterSpacing: '0.08em',
+            textTransform: 'uppercase',
+            color: 'var(--text-muted)',
+            fontFamily: 'var(--font-body)',
+            marginBottom: '6px',
+          }}>
             Email
           </Field.Label>
           <input
@@ -60,7 +69,15 @@ export function AuthForm({ mode, onSubmit, error }: Props) {
         </Field.Root>
 
         <Field.Root invalid={!!error}>
-          <Field.Label fontSize="sm" fontWeight="600" color="#374151">
+          <Field.Label style={{
+            fontSize: '11px',
+            fontWeight: 500,
+            letterSpacing: '0.08em',
+            textTransform: 'uppercase',
+            color: 'var(--text-muted)',
+            fontFamily: 'var(--font-body)',
+            marginBottom: '6px',
+          }}>
             Password
           </Field.Label>
           <input
@@ -75,7 +92,7 @@ export function AuthForm({ mode, onSubmit, error }: Props) {
             onBlur={handleBlur}
           />
           {error && (
-            <Text fontSize="xs" color="red.500" mt={1}>
+            <Text fontSize="xs" mt={1} style={{ color: 'var(--error)', fontFamily: 'var(--font-body)' }}>
               {error}
             </Text>
           )}
@@ -85,25 +102,26 @@ export function AuthForm({ mode, onSubmit, error }: Props) {
           type="submit"
           style={{
             width: '100%',
-            padding: '12px',
-            background: 'linear-gradient(135deg, #6366f1, #4f46e5)',
-            color: 'white',
+            padding: '11px',
+            background: 'var(--accent)',
+            color: '#0F0D0B',
             border: 'none',
-            borderRadius: '10px',
-            fontSize: '0.95rem',
-            fontWeight: 700,
+            borderRadius: 'var(--radius)',
+            fontSize: '12px',
+            fontWeight: 600,
+            letterSpacing: '0.08em',
+            textTransform: 'uppercase',
             cursor: 'pointer',
-            boxShadow: '0 4px 16px rgba(79,70,229,0.4)',
-            transition: 'all 0.15s ease',
-            fontFamily: 'inherit',
-            letterSpacing: '-0.01em',
+            fontFamily: 'var(--font-body)',
+            transition: 'background 0.15s, box-shadow 0.15s, transform 0.12s',
+            boxShadow: '0 4px 16px var(--accent-glow)',
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.boxShadow = '0 6px 24px rgba(79,70,229,0.55)'
+            e.currentTarget.style.background = 'var(--accent-bright)'
             e.currentTarget.style.transform = 'translateY(-1px)'
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.boxShadow = '0 4px 16px rgba(79,70,229,0.4)'
+            e.currentTarget.style.background = 'var(--accent)'
             e.currentTarget.style.transform = 'translateY(0)'
           }}
         >

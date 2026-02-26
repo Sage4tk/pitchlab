@@ -12,8 +12,8 @@ export function ProtectedRoute({ children }: Props) {
 
   if (loading) {
     return (
-      <Center minH="100vh">
-        <Spinner size="xl" colorPalette="blue" />
+      <Center minH="100vh" style={{ background: 'var(--bg)' }}>
+        <Spinner size="xl" style={{ color: 'var(--accent)' }} />
       </Center>
     )
   }

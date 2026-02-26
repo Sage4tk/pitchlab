@@ -17,23 +17,19 @@ import { useProgressStore } from '@/store/useProgressStore'
 import { getStreak } from '@/db/streaks'
 import { getRecentAttempts } from '@/db/progress'
 import type { Category } from '@/exercises/types'
-import {
-  Box,
-  VStack,
-  Heading,
-  Text,
-  Card,
-  HStack,
-  Separator,
-  Flex,
-  NativeSelect,
-} from '@chakra-ui/react'
 
 const CATEGORIES: Category[] = ['interval', 'chord', 'melody', 'rhythm']
 
 interface LinePoint {
   date: string
   accuracy: number
+}
+
+const SYMBOLS: Record<Category, string> = {
+  interval: '♩',
+  chord: '♫',
+  melody: '𝄞',
+  rhythm: '♬',
 }
 
 export function Progress() {
@@ -67,90 +63,201 @@ export function Progress() {
   }, [user, selectedCategory])
 
   return (
-    <Box minH="100vh" bg="bg.subtle" px={4} py={12}>
-      <VStack maxW="3xl" mx="auto" gap={8} align="stretch">
-        <Heading size="xl">Progress</Heading>
+    <div style={{ minHeight: '100vh', background: 'var(--bg)', padding: '48px 24px' }}>
+      <div style={{ maxWidth: '720px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '24px' }}>
 
+        {/* Title */}
+        <div>
+          <h1 style={{
+            fontFamily: 'var(--font-display)',
+            fontSize: '40px',
+            fontWeight: 600,
+            color: 'var(--text)',
+            letterSpacing: '-0.01em',
+            margin: 0,
+            lineHeight: 1.1,
+          }}>
+            Progress
+          </h1>
+          <p style={{
+            fontFamily: 'var(--font-body)',
+            fontSize: '12px',
+            color: 'var(--text-muted)',
+            margin: '8px 0 0',
+            letterSpacing: '0.04em',
+          }}>
+            Your ear training history
+          </p>
+        </div>
+
+        {/* Streak card */}
         {streak && (
-          <Card.Root>
-            <Card.Body>
-              <HStack gap={6} justify="center">
-                <VStack align="center" gap={0}>
-                  <Text fontSize="3xl" fontWeight="bold" color="orange.600">
-                    {streak.current}
-                  </Text>
-                  <Text fontSize="sm" color="fg.muted">
-                    Current streak
-                  </Text>
-                </VStack>
-                <Separator orientation="vertical" height="60px" />
-                <VStack align="center" gap={0}>
-                  <Text fontSize="3xl" fontWeight="bold" color="blue.600">
-                    {streak.longest}
-                  </Text>
-                  <Text fontSize="sm" color="fg.muted">
-                    Longest streak
-                  </Text>
-                </VStack>
-              </HStack>
-            </Card.Body>
-          </Card.Root>
+          <div style={{
+            background: 'var(--bg-surface)',
+            border: '1px solid var(--border)',
+            borderRadius: 'var(--radius-md)',
+            padding: '24px',
+            display: 'flex',
+            gap: '1px',
+          }}>
+            {[
+              { label: 'Current streak', value: streak.current },
+              { label: 'Longest streak', value: streak.longest },
+            ].map(({ label, value }, i) => (
+              <div key={label} style={{
+                flex: 1,
+                textAlign: 'center',
+                paddingLeft: i > 0 ? '24px' : 0,
+                borderLeft: i > 0 ? '1px solid var(--border)' : 'none',
+                marginLeft: i > 0 ? '24px' : 0,
+              }}>
+                <div style={{
+                  fontFamily: 'var(--font-display)',
+                  fontSize: '48px',
+                  fontWeight: 600,
+                  color: 'var(--accent)',
+                  lineHeight: 1,
+                }}>
+                  {value}
+                </div>
+                <div style={{
+                  fontFamily: 'var(--font-body)',
+                  fontSize: '10px',
+                  letterSpacing: '0.1em',
+                  textTransform: 'uppercase',
+                  color: 'var(--text-muted)',
+                  marginTop: '6px',
+                }}>
+                  {label}
+                </div>
+              </div>
+            ))}
+          </div>
         )}
 
-        <Card.Root>
-          <Card.Body gap={4}>
-            <Heading size="md">Accuracy by Category</Heading>
-            <ResponsiveContainer width="100%" height={300}>
-              <RadarChart data={radarData}>
-                <PolarGrid />
-                <PolarAngleAxis dataKey="category" />
-                <Radar
-                  name="Accuracy"
-                  dataKey="accuracy"
-                  stroke="#3182ce"
-                  fill="#3182ce"
-                  fillOpacity={0.3}
-                />
-              </RadarChart>
-            </ResponsiveContainer>
-          </Card.Body>
-        </Card.Root>
+        {/* Radar chart */}
+        <div style={{
+          background: 'var(--bg-surface)',
+          border: '1px solid var(--border)',
+          borderRadius: 'var(--radius-md)',
+          padding: '24px',
+        }}>
+          <div style={{
+            fontFamily: 'var(--font-display)',
+            fontSize: '20px',
+            fontWeight: 600,
+            color: 'var(--text)',
+            marginBottom: '20px',
+          }}>
+            Accuracy by Category
+          </div>
+          <ResponsiveContainer width="100%" height={280}>
+            <RadarChart data={radarData}>
+              <PolarGrid stroke="var(--border)" />
+              <PolarAngleAxis
+                dataKey="category"
+                tick={{ fill: 'var(--text-muted)', fontSize: 11, fontFamily: 'var(--font-body)' }}
+              />
+              <Radar
+                name="Accuracy"
+                dataKey="accuracy"
+                stroke="var(--accent)"
+                fill="var(--accent)"
+                fillOpacity={0.15}
+                strokeWidth={1.5}
+              />
+            </RadarChart>
+          </ResponsiveContainer>
+        </div>
 
-        <Card.Root>
-          <Card.Body gap={4}>
-            <Flex align="center" justify="space-between">
-              <Heading size="md">Accuracy Over Time</Heading>
-              <NativeSelect.Root width="auto">
-                <NativeSelect.Field
-                  value={selectedCategory}
-                  onChange={(e) => setSelectedCategory(e.target.value as Category)}
+        {/* Line chart */}
+        <div style={{
+          background: 'var(--bg-surface)',
+          border: '1px solid var(--border)',
+          borderRadius: 'var(--radius-md)',
+          padding: '24px',
+        }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            marginBottom: '20px',
+          }}>
+            <div style={{
+              fontFamily: 'var(--font-display)',
+              fontSize: '20px',
+              fontWeight: 600,
+              color: 'var(--text)',
+            }}>
+              Accuracy Over Time
+            </div>
+
+            {/* Category selector */}
+            <div style={{ display: 'flex', gap: '4px' }}>
+              {CATEGORIES.map((c) => (
+                <button
+                  key={c}
+                  onClick={() => setSelectedCategory(c)}
+                  title={c.charAt(0).toUpperCase() + c.slice(1)}
+                  style={{
+                    width: '30px',
+                    height: '26px',
+                    background: selectedCategory === c ? 'var(--accent)' : 'transparent',
+                    color: selectedCategory === c ? '#0F0D0B' : 'var(--text-muted)',
+                    border: '1px solid',
+                    borderColor: selectedCategory === c ? 'var(--accent)' : 'var(--border)',
+                    borderRadius: 'var(--radius)',
+                    fontFamily: 'var(--font-display)',
+                    fontSize: '14px',
+                    cursor: 'pointer',
+                    transition: 'all 0.12s',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
                 >
-                  {CATEGORIES.map((c) => (
-                    <option key={c} value={c}>
-                      {c.charAt(0).toUpperCase() + c.slice(1)}
-                    </option>
-                  ))}
-                </NativeSelect.Field>
-              </NativeSelect.Root>
-            </Flex>
-            <ResponsiveContainer width="100%" height={220}>
-              <LineChart data={lineData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" tick={{ fontSize: 11 }} />
-                <YAxis domain={[0, 100]} tick={{ fontSize: 11 }} />
-                <Tooltip />
-                <Line
-                  type="monotone"
-                  dataKey="accuracy"
-                  stroke="#3182ce"
-                  dot={false}
-                  strokeWidth={2}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </Card.Body>
-        </Card.Root>
-      </VStack>
-    </Box>
+                  {SYMBOLS[c]}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <ResponsiveContainer width="100%" height={200}>
+            <LineChart data={lineData}>
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
+              <XAxis
+                dataKey="date"
+                tick={{ fill: 'var(--text-faint)', fontSize: 10, fontFamily: 'var(--font-body)' }}
+                axisLine={{ stroke: 'var(--border)' }}
+                tickLine={false}
+              />
+              <YAxis
+                domain={[0, 100]}
+                tick={{ fill: 'var(--text-faint)', fontSize: 10, fontFamily: 'var(--font-body)' }}
+                axisLine={false}
+                tickLine={false}
+              />
+              <Tooltip
+                contentStyle={{
+                  background: 'var(--bg-surface-2)',
+                  border: '1px solid var(--border)',
+                  borderRadius: 'var(--radius)',
+                  fontFamily: 'var(--font-body)',
+                  fontSize: '12px',
+                  color: 'var(--text)',
+                }}
+              />
+              <Line
+                type="monotone"
+                dataKey="accuracy"
+                stroke="var(--accent)"
+                dot={false}
+                strokeWidth={1.5}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+    </div>
   )
 }

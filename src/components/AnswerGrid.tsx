@@ -1,5 +1,3 @@
-import { SimpleGrid, Button, Text } from '@chakra-ui/react'
-
 interface Props {
   options: string[]
   onAnswer: (answer: string) => void
@@ -8,45 +6,101 @@ interface Props {
   disabled?: boolean
 }
 
-type ButtonVariant = 'outline' | 'subtle'
-
-function getButtonProps(
+function getButtonStyle(
   option: string,
   correct: string | undefined,
   selected: string | undefined,
-): { colorPalette: string; variant: ButtonVariant } {
-  if (selected !== undefined || correct !== undefined) {
-    if (option === correct) return { colorPalette: 'green', variant: 'subtle' }
-    if (option === selected && option !== correct) return { colorPalette: 'red', variant: 'subtle' }
-    return { colorPalette: 'gray', variant: 'outline' }
+  base: React.CSSProperties,
+): React.CSSProperties {
+  const isRevealed = selected !== undefined || correct !== undefined
+
+  if (!isRevealed) return base
+
+  if (option === correct) {
+    return {
+      ...base,
+      background: 'var(--success-dim)',
+      borderColor: 'var(--success)',
+      color: 'var(--success)',
+    }
   }
-  return { colorPalette: 'blue', variant: 'outline' }
+  if (option === selected && option !== correct) {
+    return {
+      ...base,
+      background: 'var(--error-dim)',
+      borderColor: 'var(--error)',
+      color: 'var(--error)',
+    }
+  }
+  return {
+    ...base,
+    opacity: 0.4,
+    cursor: 'default',
+  }
+}
+
+const baseStyle: React.CSSProperties = {
+  position: 'relative',
+  width: '100%',
+  padding: '10px 12px',
+  background: 'var(--bg-surface-2)',
+  border: '1px solid var(--border)',
+  borderRadius: 'var(--radius)',
+  color: 'var(--text)',
+  fontFamily: 'var(--font-body)',
+  fontSize: '13px',
+  fontWeight: 500,
+  cursor: 'pointer',
+  textAlign: 'center',
+  transition: 'border-color 0.12s, background 0.12s, color 0.12s',
+  letterSpacing: '0.02em',
 }
 
 export function AnswerGrid({ options, onAnswer, correct, selected, disabled }: Props) {
   return (
-    <SimpleGrid columns={{ base: 2, sm: 3 }} gap={3} width="full">
+    <div style={{
+      display: 'grid',
+      gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))',
+      gap: '8px',
+      width: '100%',
+    }}>
       {options.map((option, i) => {
-        const btnProps = getButtonProps(option, correct, selected)
+        const style = getButtonStyle(option, correct, selected, baseStyle)
         return (
-          <Button
+          <button
             key={option}
             onClick={() => !disabled && onAnswer(option)}
             disabled={disabled}
-            colorPalette={btnProps.colorPalette}
-            variant={btnProps.variant}
-            position="relative"
-            size="md"
+            style={style}
+            onMouseEnter={e => {
+              if (!disabled && !correct && !selected) {
+                e.currentTarget.style.borderColor = 'var(--accent)'
+                e.currentTarget.style.color = 'var(--accent)'
+              }
+            }}
+            onMouseLeave={e => {
+              if (!disabled && !correct && !selected) {
+                e.currentTarget.style.borderColor = 'var(--border)'
+                e.currentTarget.style.color = 'var(--text)'
+              }
+            }}
           >
             {i < 9 && (
-              <Text position="absolute" top={1} left={2} fontSize="xs" color="fg.muted">
+              <span style={{
+                position: 'absolute',
+                top: '4px',
+                left: '6px',
+                fontSize: '9px',
+                color: 'var(--text-faint)',
+                fontFamily: 'var(--font-body)',
+              }}>
                 {i + 1}
-              </Text>
+              </span>
             )}
             {option}
-          </Button>
+          </button>
         )
       })}
-    </SimpleGrid>
+    </div>
   )
 }
