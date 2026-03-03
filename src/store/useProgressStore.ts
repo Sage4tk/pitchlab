@@ -4,6 +4,7 @@ import type { Attempt, Category } from '@/exercises/types'
 interface ProgressState {
   attempts: Attempt[]
   addAttempt: (a: Attempt) => void
+  loadAttempts: (attempts: Attempt[]) => void
   getAccuracy: (category: Category) => number
 }
 
@@ -12,6 +13,10 @@ export const useProgressStore = create<ProgressState>((set, get) => ({
 
   addAttempt(a) {
     set((state) => ({ attempts: [...state.attempts, a] }))
+  },
+
+  loadAttempts(attempts) {
+    set({ attempts })
   },
 
   getAccuracy(category) {

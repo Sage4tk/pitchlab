@@ -2,6 +2,8 @@ import {
   addDoc,
   collection,
   query,
+  orderBy,
+  limit,
   getDocs,
   where,
 } from 'firebase/firestore'
@@ -13,6 +15,18 @@ export async function saveAttempt(
   data: Omit<Attempt, 'id'>,
 ): Promise<void> {
   await addDoc(collection(db, 'users', userId, 'progress'), data)
+}
+
+// Fetches the most recent attempts across ALL categories — used to hydrate
+// the in-memory store on login so accuracy rings survive page refreshes.
+export async function getAllRecentAttempts(userId: string, n = 100): Promise<Attempt[]> {
+  const q = query(
+    collection(db, 'users', userId, 'progress'),
+    orderBy('createdAt', 'desc'),
+    limit(n),
+  )
+  const snap = await getDocs(q)
+  return snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<Attempt, 'id'>) }))
 }
 
 export async function getRecentAttempts(

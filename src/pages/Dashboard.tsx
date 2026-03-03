@@ -27,7 +27,7 @@ const fadeUp = {
 
 export function Dashboard() {
   const { user } = useSession()
-  const getAccuracy = useProgressStore((s) => s.getAccuracy)
+  const attempts = useProgressStore((s) => s.attempts)
   const [streak, setStreak] = useState<{ current: number; longest: number } | null>(null)
 
   useEffect(() => {
@@ -142,7 +142,8 @@ export function Dashboard() {
           }}
         >
           {EXERCISES.map(({ category, label, symbol, path, desc }, i) => {
-            const accuracy = getAccuracy(category)
+            const recent = attempts.filter((a) => a.category === category).slice(-20)
+            const accuracy = recent.length === 0 ? 0 : (recent.filter((a) => a.correct).length / recent.length) * 100
             return (
               <Link key={category} to={path} style={{ textDecoration: 'none', display: 'block' }}>
                 <div
@@ -207,12 +208,56 @@ export function Dashboard() {
           })}
         </motion.div>
 
+        {/* Accuracy explainer */}
+        <motion.div
+          variants={fadeUp}
+          initial="hidden"
+          animate="visible"
+          transition={{ duration: 0.5, delay: 0.18 }}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '16px',
+            background: 'var(--bg-surface)',
+            border: '1px solid var(--border)',
+            borderRadius: 'var(--radius-md)',
+            padding: '14px 20px',
+          }}
+        >
+          <div style={{
+            width: '32px',
+            height: '32px',
+            borderRadius: '50%',
+            border: '1.5px solid var(--accent)',
+            color: 'var(--accent)',
+            fontFamily: 'var(--font-body)',
+            fontSize: '13px',
+            fontWeight: 600,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexShrink: 0,
+          }}>
+            %
+          </div>
+          <p style={{
+            fontFamily: 'var(--font-body)',
+            fontSize: '12px',
+            color: 'var(--text-muted)',
+            margin: 0,
+            lineHeight: 1.7,
+            letterSpacing: '0.02em',
+          }}>
+            Each ring shows your <span style={{ color: 'var(--text)' }}>correct answer rate over your last 20 attempts</span> in that discipline. It updates as you practice.
+          </p>
+        </motion.div>
+
         {/* Quick practice CTA */}
         <motion.div
           variants={fadeUp}
           initial="hidden"
           animate="visible"
-          transition={{ duration: 0.5, delay: 0.2 }}
+          transition={{ duration: 0.5, delay: 0.26 }}
           style={{
             display: 'flex',
             alignItems: 'center',
