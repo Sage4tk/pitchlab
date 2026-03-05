@@ -25,7 +25,7 @@ export function Navbar() {
       borderBottom: '1px solid var(--border)',
       padding: '0 24px',
     }}>
-      <div style={{
+      <div className="navbar-inner" style={{
         maxWidth: '900px',
         margin: '0 auto',
         display: 'flex',
@@ -47,7 +47,7 @@ export function Navbar() {
         </Link>
 
         {/* Nav links */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+        <div className="navbar-links" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
           {navLinks.map(({ to, label }) => {
             const active = pathname === to
             return (

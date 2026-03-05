@@ -58,7 +58,7 @@ const baseStyle: React.CSSProperties = {
 
 export function AnswerGrid({ options, onAnswer, correct, selected, disabled }: Props) {
   return (
-    <div style={{
+    <div className="answer-grid" style={{
       display: 'grid',
       gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))',
       gap: '8px',

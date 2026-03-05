@@ -49,6 +49,7 @@ export function Dashboard() {
           initial="hidden"
           animate="visible"
           transition={{ duration: 0.5 }}
+          className="dashboard-header"
           style={{
             display: 'flex',
             alignItems: 'flex-start',
@@ -133,15 +134,16 @@ export function Dashboard() {
           transition={{ duration: 0.5, delay: 0.1 }}
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(380px, 1fr))',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(min(380px, 100%), 1fr))',
             gap: '1px',
+            background: 'var(--border)',
             border: '1px solid var(--border)',
             borderRadius: 'var(--radius-lg)',
             overflow: 'hidden',
             marginBottom: '24px',
           }}
         >
-          {EXERCISES.map(({ category, label, symbol, path, desc }, i) => {
+          {EXERCISES.map(({ category, label, symbol, path, desc }) => {
             const recent = attempts.filter((a) => a.category === category).slice(-20)
             const accuracy = recent.length === 0 ? 0 : (recent.filter((a) => a.correct).length / recent.length) * 100
             return (
@@ -153,8 +155,6 @@ export function Dashboard() {
                     gap: '20px',
                     padding: '24px 28px',
                     background: 'var(--bg-surface)',
-                    borderRight: i % 2 === 0 ? '1px solid var(--border)' : 'none',
-                    borderBottom: i < 2 ? '1px solid var(--border)' : 'none',
                     transition: 'background 0.15s',
                     cursor: 'pointer',
                   }}
@@ -258,6 +258,7 @@ export function Dashboard() {
           initial="hidden"
           animate="visible"
           transition={{ duration: 0.5, delay: 0.26 }}
+          className="quick-practice-card"
           style={{
             display: 'flex',
             alignItems: 'center',

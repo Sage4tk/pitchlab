@@ -70,6 +70,61 @@ body {
   letter-spacing: -0.01em;
 }
 
+/* ─── Mobile (≤ 540px) ──────────────────────────────────────── */
+@media (max-width: 540px) {
+  /* Navbar: 2-row layout */
+  .navbar-inner {
+    height: auto !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    padding: 10px 0 !important;
+    gap: 6px !important;
+  }
+  .navbar-links {
+    width: 100% !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 2px !important;
+    scrollbar-width: none;
+  }
+  .navbar-links::-webkit-scrollbar { display: none; }
+
+  /* Landing page nav */
+  .landing-nav {
+    padding: 14px 20px !important;
+  }
+
+  /* Hero CTA buttons: stack vertically */
+  .hero-cta-row {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    max-width: 300px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+  .hero-cta-row a { display: block !important; width: 100% !important; }
+  .hero-cta-row a > button { width: 100% !important; box-sizing: border-box !important; }
+
+  /* Dashboard: header wrap + quick practice stack */
+  .dashboard-header { flex-wrap: wrap !important; }
+  .quick-practice-card { flex-direction: column !important; gap: 12px !important; }
+  .quick-practice-card a { display: block !important; width: 100% !important; }
+  .quick-practice-card a > button { width: 100% !important; white-space: normal !important; }
+
+  /* Exercise page wrap: reduce padding */
+  .exercise-page-wrap {
+    padding: 12px 12px 24px !important;
+    align-items: flex-start !important;
+    min-height: 100dvh !important;
+  }
+
+  /* Answer grid: larger tap targets */
+  .answer-grid button { min-height: 44px !important; }
+
+  /* Auth card: reduce inner padding */
+  .auth-card { padding: 28px 20px !important; }
+}
+
 /* ─── Chakra overrides — force dark surfaces ────────────────── */
 /* Card roots */
 [data-scope="card"][data-part="root"] {

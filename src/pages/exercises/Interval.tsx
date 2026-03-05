@@ -390,7 +390,7 @@ export function ExerciseShell({
 
 function PageWrap({ children }: { children: React.ReactNode }) {
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '48px 24px' }}>
+    <div className="exercise-page-wrap" style={{ minHeight: '100vh', background: 'var(--bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '48px 24px' }}>
       {children}
     </div>
   )

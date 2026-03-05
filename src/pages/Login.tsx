@@ -147,7 +147,7 @@ export function AuthShell({ children }: { children: React.ReactNode }) {
         pointerEvents: 'none',
       }} />
 
-      <div style={{
+      <div className="auth-card" style={{
         width: '100%',
         maxWidth: '400px',
         background: 'var(--bg-surface)',

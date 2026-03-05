@@ -55,7 +55,7 @@ export function Landing() {
         ].join(', '),
       }}>
         {/* Nav */}
-        <nav style={{
+        <nav className="landing-nav" style={{
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
@@ -172,6 +172,7 @@ export function Landing() {
             initial="hidden"
             animate="visible"
             transition={{ duration: 0.6, delay: 0.28 }}
+            className="hero-cta-row"
             style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}
           >
             <Link to="/signup" style={{ textDecoration: 'none' }}>
