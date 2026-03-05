@@ -1,5 +1,6 @@
 import { useExerciseStore } from '@/store/useExerciseStore'
-import { setSynthType } from '@/audio/AudioEngine'
+import { setSoundPreset } from '@/audio/AudioEngine'
+import type { SoundPreset } from '@/audio/AudioEngine'
 import type { Category } from '@/exercises/types'
 import { RadioGroup } from '@chakra-ui/react'
 
@@ -10,7 +11,9 @@ const CATEGORIES: { key: Category; label: string }[] = [
   { key: 'rhythm', label: 'Rhythm' },
 ]
 
-const SYNTH_OPTIONS: { value: OscillatorType; label: string; desc: string }[] = [
+const SOUND_OPTIONS: { value: SoundPreset; label: string; desc: string }[] = [
+  { value: 'piano', label: 'Piano', desc: 'Acoustic piano timbre' },
+  { value: 'guitar', label: 'Guitar', desc: 'Plucked string sound' },
   { value: 'triangle', label: 'Triangle', desc: 'Warm, mellow tone' },
   { value: 'sine', label: 'Sine', desc: 'Pure, fundamental tone' },
   { value: 'sawtooth', label: 'Sawtooth', desc: 'Bright, buzzy tone' },
@@ -49,15 +52,15 @@ export function Settings() {
   const {
     difficulty,
     setDifficulty,
-    synthType,
-    setSynthType: storeSynth,
+    soundPreset,
+    setSoundPreset: storeSoundPreset,
     keySignature,
     setKeySignature,
   } = useExerciseStore()
 
-  function handleSynthChange(type: OscillatorType) {
-    storeSynth(type)
-    setSynthType(type)
+  function handleSoundChange(preset: SoundPreset) {
+    storeSoundPreset(preset)
+    setSoundPreset(preset)
   }
 
   return (
@@ -146,14 +149,14 @@ export function Settings() {
           </div>
         </Section>
 
-        {/* Synth type */}
-        <Section title="Sound Type">
+        {/* Sound type */}
+        <Section title="Sound">
           <RadioGroup.Root
-            value={synthType}
-            onValueChange={(d) => handleSynthChange(d.value as OscillatorType)}
+            value={soundPreset}
+            onValueChange={(d) => handleSoundChange(d.value as SoundPreset)}
           >
             <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-              {SYNTH_OPTIONS.map(({ value, label, desc }) => (
+              {SOUND_OPTIONS.map(({ value, label, desc }, idx) => (
                 <RadioGroup.Item
                   key={value}
                   value={value}
@@ -162,7 +165,7 @@ export function Settings() {
                     alignItems: 'center',
                     gap: '12px',
                     padding: '12px 0',
-                    borderBottom: value !== 'sawtooth' ? '1px solid var(--border-muted)' : 'none',
+                    borderBottom: idx < SOUND_OPTIONS.length - 1 ? '1px solid var(--border-muted)' : 'none',
                     cursor: 'pointer',
                   }}
                 >
@@ -172,8 +175,8 @@ export function Settings() {
                       width: '14px',
                       height: '14px',
                       borderRadius: '50%',
-                      border: `1px solid ${synthType === value ? 'var(--accent)' : 'var(--border)'}`,
-                      background: synthType === value ? 'var(--accent)' : 'transparent',
+                      border: `1px solid ${soundPreset === value ? 'var(--accent)' : 'var(--border)'}`,
+                      background: soundPreset === value ? 'var(--accent)' : 'transparent',
                       flexShrink: 0,
                       transition: 'all 0.12s',
                     }}
