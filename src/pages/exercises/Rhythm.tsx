@@ -13,7 +13,7 @@ export function Rhythm() {
   const check = useCallback((q: RhythmQuestion, a: boolean[]) => RhythmExercise.check(q, a), [])
 
   const {
-    phase, question, isCorrect,
+    phase, question, isCorrect, xpEarned,
     difficulty, currentRound, totalRounds, score,
     startSession, play, submit, next, reset,
   } = useExercise<RhythmQuestion, boolean[]>({ category: 'rhythm', generateQuestion: generate, checkAnswer: check })
@@ -64,6 +64,7 @@ export function Rhythm() {
                 message={isCorrect ? 'Correct' : 'Pattern shown above'}
                 onNext={next}
                 isLastRound={currentRound >= totalRounds}
+                xpEarned={xpEarned}
               />
             </div>
           </motion.div>

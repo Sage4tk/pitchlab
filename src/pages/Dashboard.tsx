@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useSession } from '@/hooks/useSession'
 import { useProgressStore } from '@/store/useProgressStore'
+import { useXPStore } from '@/store/useXPStore'
 import { getStreak } from '@/db/streaks'
 import { ProgressRing } from '@/components/ProgressRing'
 import type { Category } from '@/exercises/types'
@@ -29,6 +30,7 @@ const fadeUp = {
 export function Dashboard() {
   const { user } = useSession()
   const attempts = useProgressStore((s) => s.attempts)
+  const levelInfo = useXPStore((s) => s.levelInfo)
   const [streak, setStreak] = useState<{ current: number; longest: number } | null>(null)
 
   useEffect(() => {
@@ -207,6 +209,88 @@ export function Dashboard() {
               </Link>
             )
           })}
+        </motion.div>
+
+        {/* XP / Level bar */}
+        <motion.div
+          variants={fadeUp}
+          initial="hidden"
+          animate="visible"
+          transition={{ duration: 0.5, delay: 0.16 }}
+          style={{
+            background: 'var(--bg-surface)',
+            border: '1px solid var(--border)',
+            borderRadius: 'var(--radius-md)',
+            padding: '16px 20px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '10px',
+            marginBottom: '0',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <span style={{
+                fontFamily: 'var(--font-body)',
+                fontSize: '10px',
+                letterSpacing: '0.12em',
+                textTransform: 'uppercase',
+                color: 'var(--accent)',
+                fontWeight: 600,
+                background: 'var(--accent-dim)',
+                border: '1px solid var(--accent)',
+                borderRadius: 'var(--radius)',
+                padding: '3px 8px',
+              }}>
+                Lv {levelInfo.level}
+              </span>
+              <span style={{
+                fontFamily: 'var(--font-display)',
+                fontSize: '17px',
+                fontWeight: 500,
+                color: 'var(--text)',
+                letterSpacing: '-0.01em',
+              }}>
+                {levelInfo.title}
+              </span>
+            </div>
+            <span style={{
+              fontFamily: 'var(--font-body)',
+              fontSize: '11px',
+              color: 'var(--text-muted)',
+              letterSpacing: '0.04em',
+            }}>
+              {levelInfo.totalXP.toLocaleString()} XP
+            </span>
+          </div>
+
+          {/* Progress bar */}
+          <div style={{
+            height: '6px',
+            background: 'var(--bg-highlight)',
+            borderRadius: '3px',
+            overflow: 'hidden',
+          }}>
+            <div style={{
+              height: '100%',
+              width: `${levelInfo.progressPct}%`,
+              background: 'var(--accent)',
+              borderRadius: '3px',
+              transition: 'width 0.4s ease',
+              boxShadow: '0 0 6px var(--accent-glow)',
+            }} />
+          </div>
+
+          <div style={{
+            fontFamily: 'var(--font-body)',
+            fontSize: '10px',
+            color: 'var(--text-faint)',
+            letterSpacing: '0.04em',
+          }}>
+            {levelInfo.progressPct < 100
+              ? `${levelInfo.currentXP} / ${levelInfo.xpForLevel} XP to level ${levelInfo.level + 1}`
+              : 'Max level reached'}
+          </div>
         </motion.div>
 
         {/* Accuracy explainer */}

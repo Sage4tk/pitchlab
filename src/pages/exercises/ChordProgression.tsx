@@ -15,7 +15,7 @@ export function ChordProgression() {
   const getItemLabel = useCallback((q: ChordProgressionQuestion) => q.label, [])
 
   const {
-    phase, question, isCorrect,
+    phase, question, isCorrect, xpEarned,
     difficulty, currentRound, totalRounds, score,
     startSession, play, submit, next, reset,
   } = useExercise<ChordProgressionQuestion, string>({
@@ -70,6 +70,7 @@ export function ChordProgression() {
               message={isCorrect ? 'Correct' : `It was ${question?.label}`}
               onNext={next}
               isLastRound={currentRound >= totalRounds}
+              xpEarned={xpEarned}
             />
           </motion.div>
         )}

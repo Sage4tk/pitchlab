@@ -2,8 +2,11 @@ import { useState, useCallback, useRef } from 'react'
 import { useSession } from './useSession'
 import { useProgressStore } from '@/store/useProgressStore'
 import { useSpacedRepStore } from '@/store/useSpacedRepStore'
+import { useXPStore } from '@/store/useXPStore'
+import { calcXP } from '@/lib/levelSystem'
 import { saveAttempt } from '@/db/progress'
 import { updateStreak } from '@/db/streaks'
+import { addXPToFirestore } from '@/db/xp'
 import type { Category } from '@/exercises/types'
 
 export type Phase = 'setup' | 'idle' | 'answering' | 'feedback' | 'results'
@@ -19,6 +22,7 @@ interface UseExerciseResult<TQuestion, TAnswer> {
   phase: Phase
   question: TQuestion | null
   isCorrect: boolean | null
+  xpEarned: number
   difficulty: 1 | 2 | 3
   currentRound: number
   totalRounds: number
@@ -42,6 +46,7 @@ export function useExercise<TQuestion, TAnswer>({
   const [phase, setPhase] = useState<Phase>('setup')
   const [question, setQuestion] = useState<TQuestion | null>(null)
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null)
+  const [xpEarned, setXpEarned] = useState(0)
   const [difficulty, setDifficulty] = useState<1 | 2 | 3>(1)
   const [totalRounds, setTotalRounds] = useState(5)
   const [currentRound, setCurrentRound] = useState(0)
@@ -86,6 +91,13 @@ export function useExercise<TQuestion, TAnswer>({
       setIsCorrect(correct)
       if (correct) setScore((s) => s + 1)
       setPhase('feedback')
+
+      const xp = correct ? calcXP(difficulty, answerMs) : 0
+      setXpEarned(xp)
+      if (xp > 0) {
+        useXPStore.getState().addXP(xp)
+        if (user) void addXPToFirestore(user.uid, xp)
+      }
 
       const attempt = {
         category,
@@ -135,6 +147,7 @@ export function useExercise<TQuestion, TAnswer>({
     phase,
     question,
     isCorrect,
+    xpEarned,
     difficulty,
     currentRound,
     totalRounds,

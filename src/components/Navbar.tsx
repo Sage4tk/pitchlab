@@ -1,6 +1,7 @@
 import { Link, useLocation } from 'react-router-dom'
 import { logOut } from '@/lib/firebaseAuth'
 import { useSession } from '@/hooks/useSession'
+import { useXPStore } from '@/store/useXPStore'
 
 const PUBLIC_PATHS = ['/', '/login', '/signup', '/forgot-password']
 
@@ -13,6 +14,7 @@ const navLinks = [
 export function Navbar() {
   const { user } = useSession()
   const { pathname } = useLocation()
+  const levelInfo = useXPStore((s) => s.levelInfo)
 
   if (PUBLIC_PATHS.includes(pathname) || !user) return null
 
@@ -43,6 +45,25 @@ export function Navbar() {
             letterSpacing: '0.02em',
           }}>
             Pitchlab
+          </span>
+        </Link>
+
+        {/* Level badge */}
+        <Link to="/progress" style={{ textDecoration: 'none' }}>
+          <span style={{
+            fontFamily: 'var(--font-body)',
+            fontSize: '10px',
+            fontWeight: 600,
+            letterSpacing: '0.1em',
+            color: 'var(--accent)',
+            background: 'var(--accent-dim)',
+            border: '1px solid var(--accent)',
+            borderRadius: 'var(--radius)',
+            padding: '3px 8px',
+            cursor: 'pointer',
+            whiteSpace: 'nowrap',
+          }}>
+            Lv {levelInfo.level} · {levelInfo.title}
           </span>
         </Link>
 

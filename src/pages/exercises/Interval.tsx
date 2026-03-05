@@ -18,7 +18,7 @@ export function Interval() {
   const getItemLabel = useCallback((q: IntervalQuestion) => q.label, [])
 
   const {
-    phase, question, isCorrect,
+    phase, question, isCorrect, xpEarned,
     difficulty, currentRound, totalRounds, score,
     startSession, play, submit, next, reset,
   } = useExercise<IntervalQuestion, string>({ category: 'interval', generateQuestion: generate, checkAnswer: check, getItemLabel })
@@ -67,6 +67,7 @@ export function Interval() {
               message={isCorrect ? 'Correct' : `It was ${question?.label}`}
               onNext={next}
               isLastRound={currentRound >= totalRounds}
+              xpEarned={xpEarned}
             />
           </motion.div>
         )}
@@ -503,20 +504,40 @@ interface FeedbackRowProps {
   message: string
   onNext: () => void
   isLastRound?: boolean
+  xpEarned?: number
 }
 
-export function FeedbackRow({ isCorrect, message, onNext, isLastRound }: FeedbackRowProps) {
+export function FeedbackRow({ isCorrect, message, onNext, isLastRound, xpEarned }: FeedbackRowProps) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-      <div style={{
-        fontFamily: 'var(--font-display)',
-        fontSize: '22px',
-        fontStyle: 'italic',
-        fontWeight: 500,
-        color: isCorrect ? 'var(--success)' : 'var(--error)',
-        letterSpacing: '-0.01em',
-      }}>
-        {isCorrect ? '✓ ' : '✗ '}{message}
+      <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: '12px' }}>
+        <div style={{
+          fontFamily: 'var(--font-display)',
+          fontSize: '22px',
+          fontStyle: 'italic',
+          fontWeight: 500,
+          color: isCorrect ? 'var(--success)' : 'var(--error)',
+          letterSpacing: '-0.01em',
+        }}>
+          {isCorrect ? '✓ ' : '✗ '}{message}
+        </div>
+        {xpEarned != null && xpEarned > 0 && (
+          <div style={{
+            fontFamily: 'var(--font-body)',
+            fontSize: '11px',
+            fontWeight: 600,
+            letterSpacing: '0.08em',
+            color: 'var(--accent)',
+            background: 'var(--accent-dim)',
+            border: '1px solid var(--accent)',
+            borderRadius: 'var(--radius)',
+            padding: '3px 8px',
+            whiteSpace: 'nowrap',
+            flexShrink: 0,
+          }}>
+            +{xpEarned} XP
+          </div>
+        )}
       </div>
       <button
         onClick={onNext}

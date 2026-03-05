@@ -15,7 +15,7 @@ export function Melody() {
   const check = useCallback((q: MelodyQuestion, a: string[]) => MelodyExercise.check(q, a), [])
 
   const {
-    phase, question, isCorrect,
+    phase, question, isCorrect, xpEarned,
     difficulty, currentRound, totalRounds, score,
     startSession, play, submit, next, reset,
   } = useExercise<MelodyQuestion, string[]>({ category: 'melody', generateQuestion: generate, checkAnswer: check })
@@ -138,6 +138,7 @@ export function Melody() {
               message={isCorrect ? 'Correct' : `Correct: ${question?.notes.join(', ')}`}
               onNext={handleNext}
               isLastRound={currentRound >= totalRounds}
+              xpEarned={xpEarned}
             />
           </motion.div>
         )}

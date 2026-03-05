@@ -15,7 +15,7 @@ export function Chord() {
   const getItemLabel = useCallback((q: ChordQuestion) => q.quality, [])
 
   const {
-    phase, question, isCorrect,
+    phase, question, isCorrect, xpEarned,
     difficulty, currentRound, totalRounds, score,
     startSession, play, submit, next, reset,
   } = useExercise<ChordQuestion, string>({ category: 'chord', generateQuestion: generate, checkAnswer: check, getItemLabel })
@@ -64,6 +64,7 @@ export function Chord() {
               message={isCorrect ? 'Correct' : `It was ${question?.quality}`}
               onNext={next}
               isLastRound={currentRound >= totalRounds}
+              xpEarned={xpEarned}
             />
           </motion.div>
         )}
