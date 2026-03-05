@@ -36,16 +36,6 @@ function generatePattern(difficulty: 1 | 2 | 3): RhythmQuestion {
   return { pattern, bpm: 90, subdivisions: 8 }
 }
 
-function quantize(tapMs: number[], durationMs: number, subdivisions: number): boolean[] {
-  const beatMs = durationMs / subdivisions
-  const result = Array(subdivisions).fill(false) as boolean[]
-  tapMs.forEach((t) => {
-    const idx = Math.round(t / beatMs)
-    if (idx >= 0 && idx < subdivisions) result[idx] = true
-  })
-  return result
-}
-
 export const RhythmExercise: Exercise<RhythmQuestion, boolean[]> = {
   generate(difficulty) {
     const question = generatePattern(difficulty)
@@ -66,5 +56,3 @@ export const RhythmExercise: Exercise<RhythmQuestion, boolean[]> = {
   },
 }
 
-// Export quantize for use in RhythmPad
-export { quantize }

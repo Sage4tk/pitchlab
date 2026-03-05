@@ -31,7 +31,7 @@ export function Rhythm() {
       onStartSession={startSession} onReset={reset}
     >
       <p style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: 'var(--text-muted)', margin: 0, letterSpacing: '0.02em' }}>
-        Listen to the rhythm, then tap along to reproduce it.
+        Listen to the rhythm, then click the beats you heard.
       </p>
 
       {phase === 'idle' && <PlayButton label="Play Rhythm" onClick={play} />}

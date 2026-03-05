@@ -1,6 +1,4 @@
-import { useRef, useState } from 'react'
-import { quantize } from '@/exercises/RhythmExercise'
-import { VStack, Button, Text, HStack, Circle } from '@chakra-ui/react'
+import { useState } from 'react'
 
 interface Props {
   subdivisions: number
@@ -9,77 +7,78 @@ interface Props {
   disabled?: boolean
 }
 
-export function RhythmPad({ subdivisions, bpm, onSubmit, disabled }: Props) {
-  const [taps, setTaps] = useState<number[]>([])
-  const [recording, setRecording] = useState(false)
-  const startRef = useRef<number>(0)
-  const patternDurationMs = (subdivisions * 60000) / bpm
+export function RhythmPad({ subdivisions, onSubmit, disabled }: Props) {
+  const [selected, setSelected] = useState<boolean[]>(Array(subdivisions).fill(false))
 
-  function handleStart() {
-    setTaps([])
-    setRecording(true)
-    startRef.current = Date.now()
-
-    setTimeout(() => {
-      setRecording(false)
-    }, patternDurationMs + 500)
-  }
-
-  function handleTap() {
-    if (!recording) return
-    const elapsed = Date.now() - startRef.current
-    setTaps((prev) => [...prev, elapsed])
+  function toggleBeat(i: number) {
+    if (disabled) return
+    setSelected((prev) => prev.map((v, idx) => (idx === i ? !v : v)))
   }
 
   function handleSubmit() {
-    const pattern = quantize(taps, patternDurationMs, subdivisions)
-    onSubmit(pattern)
+    onSubmit(selected)
   }
 
   return (
-    <VStack gap={4}>
-      {!recording && taps.length === 0 && (
-        <Button
-          onClick={handleStart}
-          disabled={disabled}
-          colorPalette="blue"
-          size="lg"
-        >
-          Start Recording
-        </Button>
-      )}
-      {recording && (
-        <Circle
-          as="button"
-          size="40"
-          bg="blue.500"
-          color="white"
-          fontSize="2xl"
-          fontWeight="bold"
-          _active={{ bg: 'blue.700' }}
-          shadow="lg"
-          cursor="pointer"
-          border="none"
-          onClick={handleTap}
-        >
-          TAP
-        </Circle>
-      )}
-      {!recording && taps.length > 0 && (
-        <VStack gap={3}>
-          <Text fontSize="sm" color="fg.muted">
-            {taps.length} taps recorded
-          </Text>
-          <HStack gap={3}>
-            <Button variant="outline" onClick={handleStart}>
-              Retry
-            </Button>
-            <Button colorPalette="blue" onClick={handleSubmit}>
-              Submit
-            </Button>
-          </HStack>
-        </VStack>
-      )}
-    </VStack>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', alignItems: 'center' }}>
+      <p style={{
+        fontFamily: 'var(--font-body)',
+        fontSize: '11px',
+        color: 'var(--text-muted)',
+        margin: 0,
+        letterSpacing: '0.06em',
+        textTransform: 'uppercase',
+      }}>
+        Click the beats you heard
+      </p>
+
+      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'center' }}>
+        {selected.map((hit, i) => (
+          <button
+            key={i}
+            onClick={() => toggleBeat(i)}
+            disabled={disabled}
+            style={{
+              width: '46px',
+              height: '46px',
+              borderRadius: 'var(--radius)',
+              background: hit ? 'var(--accent)' : 'var(--bg-surface-2)',
+              border: `1px solid ${hit ? 'var(--accent)' : 'var(--border)'}`,
+              cursor: disabled ? 'not-allowed' : 'pointer',
+              fontFamily: 'var(--font-body)',
+              fontSize: '12px',
+              fontWeight: hit ? '500' : '400',
+              color: hit ? '#1a1208' : 'var(--text-muted)',
+              transition: 'background 0.12s, border-color 0.12s, box-shadow 0.12s',
+              boxShadow: hit ? '0 2px 10px var(--accent-glow)' : 'none',
+              outline: 'none',
+            }}
+          >
+            {i + 1}
+          </button>
+        ))}
+      </div>
+
+      <button
+        onClick={handleSubmit}
+        disabled={disabled}
+        style={{
+          fontFamily: 'var(--font-body)',
+          fontSize: '12px',
+          letterSpacing: '0.08em',
+          textTransform: 'uppercase',
+          padding: '8px 28px',
+          borderRadius: 'var(--radius)',
+          background: 'var(--accent)',
+          border: 'none',
+          color: '#1a1208',
+          cursor: disabled ? 'not-allowed' : 'pointer',
+          opacity: disabled ? 0.5 : 1,
+          transition: 'opacity 0.15s',
+        }}
+      >
+        Submit
+      </button>
+    </div>
   )
 }

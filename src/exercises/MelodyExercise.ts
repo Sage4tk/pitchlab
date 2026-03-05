@@ -1,6 +1,10 @@
 import type { Exercise } from './types'
 import { playMelody } from '@/audio/AudioEngine'
-import { applyInterval } from '@/audio/noteUtils'
+import { noteToMidi, midiToNote } from '@/audio/noteUtils'
+
+// Match the piano keyboard range: C3–B4
+const MIDI_LOW = noteToMidi('C3')  // 48
+const MIDI_HIGH = noteToMidi('B4') // 71
 
 export interface MelodyQuestion {
   notes: string[]
@@ -31,15 +35,11 @@ function generateMelody(difficulty: 1 | 2 | 3): string[] {
   const notes: string[] = []
   for (let i = 0; i < count; i++) {
     const interval = pick(scale)
-    // allow some descent
     const dir = Math.random() > 0.4 ? 1 : -1
     const offset = dir * interval
     const base = notes.length > 0 ? notes[notes.length - 1] : root
-    try {
-      notes.push(applyInterval(base, offset))
-    } catch {
-      notes.push(root)
-    }
+    const midi = Math.max(MIDI_LOW, Math.min(MIDI_HIGH, noteToMidi(base) + offset))
+    notes.push(midiToNote(midi))
   }
   return notes
 }
