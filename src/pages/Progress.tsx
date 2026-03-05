@@ -18,7 +18,7 @@ import { getStreak } from '@/db/streaks'
 import { getRecentAttempts } from '@/db/progress'
 import type { Category } from '@/exercises/types'
 
-const CATEGORIES: Category[] = ['interval', 'chord', 'melody', 'rhythm']
+const CATEGORIES: Category[] = ['interval', 'chord', 'melody', 'rhythm', 'progression']
 
 interface LinePoint {
   date: string
@@ -30,6 +30,7 @@ const SYMBOLS: Record<Category, string> = {
   chord: '♫',
   melody: '𝄞',
   rhythm: '♬',
+  progression: '♮',
 }
 
 export function Progress() {

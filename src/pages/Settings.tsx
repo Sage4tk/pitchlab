@@ -9,6 +9,7 @@ const CATEGORIES: { key: Category; label: string }[] = [
   { key: 'chord', label: 'Chords' },
   { key: 'melody', label: 'Melody' },
   { key: 'rhythm', label: 'Rhythm' },
+  { key: 'progression', label: 'Progressions' },
 ]
 
 const SOUND_OPTIONS: { value: SoundPreset; label: string; desc: string }[] = [

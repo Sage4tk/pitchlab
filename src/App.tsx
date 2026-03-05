@@ -13,6 +13,7 @@ const Interval = lazy(() => import('@/pages/exercises/Interval').then(m => ({ de
 const Chord = lazy(() => import('@/pages/exercises/Chord').then(m => ({ default: m.Chord })))
 const Melody = lazy(() => import('@/pages/exercises/Melody').then(m => ({ default: m.Melody })))
 const Rhythm = lazy(() => import('@/pages/exercises/Rhythm').then(m => ({ default: m.Rhythm })))
+const ChordProgression = lazy(() => import('@/pages/exercises/ChordProgression').then(m => ({ default: m.ChordProgression })))
 const Progress = lazy(() => import('@/pages/Progress').then(m => ({ default: m.Progress })))
 const Settings = lazy(() => import('@/pages/Settings').then(m => ({ default: m.Settings })))
 
@@ -69,6 +70,14 @@ export default function App() {
           element={
             <ProtectedRoute>
               <Rhythm />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/exercises/progression"
+          element={
+            <ProtectedRoute>
+              <ChordProgression />
             </ProtectedRoute>
           }
         />

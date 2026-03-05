@@ -18,6 +18,7 @@ const EXERCISES: {
   { category: 'chord', label: 'Chords', symbol: '♫', path: '/exercises/chord', desc: 'Major, minor, and beyond' },
   { category: 'melody', label: 'Melody', symbol: '𝄞', path: '/exercises/melody', desc: 'Transcribe melodic phrases' },
   { category: 'rhythm', label: 'Rhythm', symbol: '♬', path: '/exercises/rhythm', desc: 'Tap rhythmic patterns' },
+  { category: 'progression', label: 'Progressions', symbol: '♮', path: '/exercises/progression', desc: 'Identify chord sequences' },
 ]
 
 const fadeUp = {

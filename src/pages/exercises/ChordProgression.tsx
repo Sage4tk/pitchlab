@@ -1,44 +1,49 @@
 import { useCallback } from 'react'
 import { useExercise } from '@/hooks/useExercise'
 import { useKeyboardAnswer } from '@/hooks/useKeyboard'
-import { ChordExercise } from '@/exercises/ChordExercise'
-import type { ChordQuestion } from '@/exercises/ChordExercise'
+import { ChordProgressionExercise } from '@/exercises/ChordProgressionExercise'
+import type { ChordProgressionQuestion } from '@/exercises/ChordProgressionExercise'
 import { AnswerGrid } from '@/components/AnswerGrid'
 import { PlayButton } from '@/components/PlayButton'
-import { playChord } from '@/audio/AudioEngine'
+import { playChordProgression } from '@/audio/AudioEngine'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ExerciseShell, FeedbackRow, ReplayButton } from '@/pages/exercises/Interval'
 
-export function Chord() {
-  const generate = useCallback((d: 1 | 2 | 3) => ChordExercise.generate(d), [])
-  const check = useCallback((q: ChordQuestion, a: string) => ChordExercise.check(q, a), [])
-  const getItemLabel = useCallback((q: ChordQuestion) => q.quality, [])
+export function ChordProgression() {
+  const generate = useCallback((d: 1 | 2 | 3) => ChordProgressionExercise.generate(d), [])
+  const check = useCallback((q: ChordProgressionQuestion, a: string) => ChordProgressionExercise.check(q, a), [])
+  const getItemLabel = useCallback((q: ChordProgressionQuestion) => q.label, [])
 
   const {
     phase, question, isCorrect,
     difficulty, currentRound, totalRounds, score,
     startSession, play, submit, next, reset,
-  } = useExercise<ChordQuestion, string>({ category: 'chord', generateQuestion: generate, checkAnswer: check, getItemLabel })
+  } = useExercise<ChordProgressionQuestion, string>({
+    category: 'progression',
+    generateQuestion: generate,
+    checkAnswer: check,
+    getItemLabel,
+  })
 
   const options = question
-    ? ChordExercise.options(question, difficulty)
-    : ChordExercise.options({ root: 'C4', notes: [], quality: 'Major' }, difficulty)
+    ? ChordProgressionExercise.options(question, difficulty)
+    : ChordProgressionExercise.options({ key: 'C3', chords: [], label: '' }, difficulty)
 
   useKeyboardAnswer(options, submit, phase === 'answering')
 
   function handleReplay() {
     if (!question) return
-    void playChord(question.notes, '2n')
+    void playChordProgression(question.chords.map((c) => c.notes))
   }
 
   return (
     <ExerciseShell
-      title="Chords" symbol="♫"
+      title="Progressions" symbol="♮"
       phase={phase} difficulty={difficulty}
       currentRound={currentRound} totalRounds={totalRounds} score={score}
       onStartSession={startSession} onReset={reset}
     >
-      {phase === 'idle' && <PlayButton label="Play Chord" onClick={play} />}
+      {phase === 'idle' && <PlayButton label="Play Progression" onClick={play} />}
 
       <AnimatePresence>
         {(phase === 'answering' || phase === 'feedback') && (
@@ -48,8 +53,9 @@ export function Chord() {
               <AnswerGrid
                 options={options}
                 onAnswer={submit}
-                correct={phase === 'feedback' ? question?.quality : undefined}
+                correct={phase === 'feedback' ? question?.label : undefined}
                 disabled={phase === 'feedback'}
+                minColWidth={200}
               />
             </div>
           </motion.div>
@@ -61,7 +67,7 @@ export function Chord() {
           <motion.div initial={{ opacity: 0, scale: 0.94 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.18 }}>
             <FeedbackRow
               isCorrect={isCorrect}
-              message={isCorrect ? 'Correct' : `It was ${question?.quality}`}
+              message={isCorrect ? 'Correct' : `It was ${question?.label}`}
               onNext={next}
               isLastRound={currentRound >= totalRounds}
             />

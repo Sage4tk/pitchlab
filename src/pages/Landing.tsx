@@ -26,6 +26,12 @@ const features = [
     description: 'Tap along to rhythmic patterns and build your internal pulse.',
     path: '/exercises/rhythm',
   },
+  {
+    symbol: '♮',
+    name: 'Progressions',
+    description: 'Hear chord sequences and identify common harmonic progressions.',
+    path: '/exercises/progression',
+  },
 ]
 
 const steps = [
@@ -275,7 +281,7 @@ export function Landing() {
               letterSpacing: '-0.01em',
               margin: '0 0 12px',
             }}>
-              Four disciplines. One app.
+              Five disciplines. One app.
             </h2>
             <p style={{
               fontFamily: 'var(--font-body)',
@@ -291,6 +297,7 @@ export function Landing() {
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
             gap: '1px',
+            background: 'var(--border)',
             border: '1px solid var(--border)',
             borderRadius: 'var(--radius-lg)',
             overflow: 'hidden',
@@ -308,7 +315,6 @@ export function Landing() {
                   style={{
                     background: 'var(--bg-surface)',
                     padding: '32px 28px',
-                    borderRight: i < features.length - 1 ? '1px solid var(--border)' : 'none',
                     height: '100%',
                     transition: 'background 0.2s',
                     cursor: 'default',

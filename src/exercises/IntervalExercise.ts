@@ -1,6 +1,7 @@
 import type { Exercise } from './types'
 import { randomNote, applyInterval } from '@/audio/noteUtils'
 import { playInterval } from '@/audio/AudioEngine'
+import { useSpacedRepStore, weightedPick } from '@/store/useSpacedRepStore'
 
 export interface IntervalQuestion {
   root: string
@@ -36,14 +37,12 @@ function getPool(difficulty: 1 | 2 | 3) {
   return D3
 }
 
-function pick<T>(arr: T[]): T {
-  return arr[Math.floor(Math.random() * arr.length)]
-}
-
 export const IntervalExercise: Exercise<IntervalQuestion> = {
   generate(difficulty) {
     const pool = getPool(difficulty)
-    const interval = pick(pool)
+    const { getWeights } = useSpacedRepStore.getState()
+    const weights = getWeights('interval', pool.map((i) => i.label))
+    const interval = weightedPick(pool, weights)
     const ascending = difficulty < 3 ? true : Math.random() > 0.5
     const semitones = ascending ? interval.semitones : -interval.semitones
     const root = randomNote('C3', 'C5')

@@ -7,18 +7,21 @@ import { IntervalExercise } from '@/exercises/IntervalExercise'
 import type { IntervalQuestion } from '@/exercises/IntervalExercise'
 import { AnswerGrid } from '@/components/AnswerGrid'
 import { PlayButton } from '@/components/PlayButton'
-import { playInterval } from '@/audio/AudioEngine'
+import { playInterval, setSoundPreset as setAudioPreset } from '@/audio/AudioEngine'
+import type { SoundPreset } from '@/audio/AudioEngine'
+import { useExerciseStore } from '@/store/useExerciseStore'
 import { motion, AnimatePresence } from 'framer-motion'
 
 export function Interval() {
   const generate = useCallback((d: 1 | 2 | 3) => IntervalExercise.generate(d), [])
   const check = useCallback((q: IntervalQuestion, a: string) => IntervalExercise.check(q, a), [])
+  const getItemLabel = useCallback((q: IntervalQuestion) => q.label, [])
 
   const {
     phase, question, isCorrect,
     difficulty, currentRound, totalRounds, score,
     startSession, play, submit, next, reset,
-  } = useExercise<IntervalQuestion, string>({ category: 'interval', generateQuestion: generate, checkAnswer: check })
+  } = useExercise<IntervalQuestion, string>({ category: 'interval', generateQuestion: generate, checkAnswer: check, getItemLabel })
 
   const options = question
     ? IntervalExercise.options(question, difficulty)
@@ -89,12 +92,25 @@ interface ShellProps {
 
 const DIFFICULTY_LABELS: Record<1 | 2 | 3, string> = { 1: 'Easy', 2: 'Medium', 3: 'Hard' }
 const ROUND_OPTIONS = [3, 5, 10] as const
+const INSTRUMENT_OPTIONS: { value: SoundPreset; label: string }[] = [
+  { value: 'piano', label: 'Piano' },
+  { value: 'guitar', label: 'Guitar' },
+  { value: 'triangle', label: 'Triangle' },
+  { value: 'sine', label: 'Sine' },
+  { value: 'sawtooth', label: 'Sawtooth' },
+]
 
 export function ExerciseShell({
   title, symbol, phase, difficulty, currentRound, totalRounds, score, onStartSession, onReset, children,
 }: ShellProps) {
   const [selDiff, setSelDiff] = useState<1 | 2 | 3>(1)
   const [selRounds, setSelRounds] = useState<3 | 5 | 10>(5)
+  const { soundPreset, setSoundPreset: storeSoundPreset } = useExerciseStore()
+
+  function handleSoundChange(preset: SoundPreset) {
+    storeSoundPreset(preset)
+    setAudioPreset(preset)
+  }
 
   const pct = Math.round((score / totalRounds) * 100)
 
@@ -159,6 +175,35 @@ export function ExerciseShell({
                     }}
                   >
                     {r}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Instrument */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <SectionLabel>Instrument</SectionLabel>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                {INSTRUMENT_OPTIONS.map(({ value, label }) => (
+                  <button
+                    key={value}
+                    onClick={() => handleSoundChange(value)}
+                    style={{
+                      padding: '8px 14px',
+                      background: soundPreset === value ? 'var(--accent)' : 'var(--bg-surface-2)',
+                      color: soundPreset === value ? '#0F0D0B' : 'var(--text-muted)',
+                      border: '1px solid',
+                      borderColor: soundPreset === value ? 'var(--accent)' : 'var(--border)',
+                      borderRadius: 'var(--radius)',
+                      fontFamily: 'var(--font-body)',
+                      fontSize: '12px',
+                      fontWeight: soundPreset === value ? 600 : 400,
+                      cursor: 'pointer',
+                      letterSpacing: '0.04em',
+                      transition: 'all 0.12s',
+                    }}
+                  >
+                    {label}
                   </button>
                 ))}
               </div>

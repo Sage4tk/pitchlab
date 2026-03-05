@@ -4,6 +4,7 @@ interface Props {
   correct?: string
   selected?: string
   disabled?: boolean
+  minColWidth?: number
 }
 
 function getButtonStyle(
@@ -56,11 +57,11 @@ const baseStyle: React.CSSProperties = {
   letterSpacing: '0.02em',
 }
 
-export function AnswerGrid({ options, onAnswer, correct, selected, disabled }: Props) {
+export function AnswerGrid({ options, onAnswer, correct, selected, disabled, minColWidth = 120 }: Props) {
   return (
     <div className="answer-grid" style={{
       display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))',
+      gridTemplateColumns: `repeat(auto-fill, minmax(${minColWidth}px, 1fr))`,
       gap: '8px',
       width: '100%',
     }}>

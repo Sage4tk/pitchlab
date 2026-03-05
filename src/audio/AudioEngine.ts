@@ -156,6 +156,30 @@ export async function playRhythm(pattern: boolean[], bpm = 80): Promise<void> {
   }
 }
 
+export async function playChordProgression(chordNotes: string[][], bpm = 70): Promise<void> {
+  await Tone.start()
+  const now = Tone.now()
+  const beatDuration = (60 / bpm) * 2 // 2 beats per chord
+  if (isGuitar()) {
+    chordNotes.forEach((notes, i) => {
+      const startTime = now + i * beatDuration
+      notes.forEach((note, j) => {
+        getNextPluck().triggerAttack(note, startTime + j * 0.04)
+      })
+    })
+  } else if (isPiano()) {
+    const s = getPianoSampler()
+    chordNotes.forEach((notes, i) => {
+      s.triggerAttackRelease(notes, '2n', now + i * beatDuration)
+    })
+  } else {
+    const s = getPolySynth()
+    chordNotes.forEach((notes, i) => {
+      s.triggerAttackRelease(notes, '2n', now + i * beatDuration)
+    })
+  }
+}
+
 export function setSoundPreset(preset: SoundPreset): void {
   currentPreset = preset
   if (polySynth) { polySynth.dispose(); polySynth = null }

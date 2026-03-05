@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef } from 'react'
 import { useSession } from './useSession'
 import { useProgressStore } from '@/store/useProgressStore'
+import { useSpacedRepStore } from '@/store/useSpacedRepStore'
 import { saveAttempt } from '@/db/progress'
 import { updateStreak } from '@/db/streaks'
 import type { Category } from '@/exercises/types'
@@ -11,6 +12,7 @@ interface UseExerciseOptions<TQuestion, TAnswer> {
   category: Category
   generateQuestion: (difficulty: 1 | 2 | 3) => TQuestion
   checkAnswer: (question: TQuestion, answer: TAnswer) => boolean
+  getItemLabel?: (question: TQuestion) => string
 }
 
 interface UseExerciseResult<TQuestion, TAnswer> {
@@ -32,6 +34,7 @@ export function useExercise<TQuestion, TAnswer>({
   category,
   generateQuestion,
   checkAnswer,
+  getItemLabel,
 }: UseExerciseOptions<TQuestion, TAnswer>): UseExerciseResult<TQuestion, TAnswer> {
   const { user } = useSession()
   const addAttempt = useProgressStore((s) => s.addAttempt)
@@ -49,6 +52,8 @@ export function useExercise<TQuestion, TAnswer>({
   const currentRoundRef = useRef(0)
   const totalRoundsRef = useRef(5)
   const difficultyRef = useRef<1 | 2 | 3>(1)
+  const getItemLabelRef = useRef(getItemLabel)
+  getItemLabelRef.current = getItemLabel
 
   const startSession = useCallback((diff: 1 | 2 | 3, rounds: 3 | 5 | 10) => {
     setDifficulty(diff)
@@ -90,6 +95,9 @@ export function useExercise<TQuestion, TAnswer>({
         createdAt: Date.now(),
       }
       addAttempt(attempt)
+      if (getItemLabelRef.current && question) {
+        useSpacedRepStore.getState().recordResult(category, getItemLabelRef.current(question), correct)
+      }
       if (user) {
         void saveAttempt(user.uid, attempt)
         void updateStreak(user.uid)

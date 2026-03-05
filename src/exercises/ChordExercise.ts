@@ -1,6 +1,7 @@
 import type { Exercise } from './types'
 import { randomNote, applyInterval } from '@/audio/noteUtils'
 import { playChord } from '@/audio/AudioEngine'
+import { useSpacedRepStore, weightedPick } from '@/store/useSpacedRepStore'
 
 export interface ChordQuestion {
   root: string
@@ -27,14 +28,12 @@ function optionsByDifficulty(difficulty: 1 | 2 | 3): string[] {
   return Object.keys(CHORDS)
 }
 
-function pick<T>(arr: T[]): T {
-  return arr[Math.floor(Math.random() * arr.length)]
-}
-
 export const ChordExercise: Exercise<ChordQuestion> = {
   generate(difficulty) {
     const available = optionsByDifficulty(difficulty)
-    const quality = pick(available)
+    const { getWeights } = useSpacedRepStore.getState()
+    const weights = getWeights('chord', available)
+    const quality = weightedPick(available, weights)
     const root = randomNote('C3', 'G4')
     const intervals = CHORDS[quality]
     const notes = intervals.map((s) => applyInterval(root, s))
