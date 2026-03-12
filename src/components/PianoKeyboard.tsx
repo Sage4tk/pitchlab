@@ -1,7 +1,9 @@
 interface Props {
   onKeyPress: (note: string) => void
   highlightNotes?: string[]
+  activeNotes?: string[]
   disabled?: boolean
+  keyMap?: Record<string, string> // note → keyboard key label
 }
 
 // Two octaves: C3–B4
@@ -26,8 +28,21 @@ function blackKeyX(whiteIdx: number): number {
   return whiteIdx * WHITE_KEY_W + WHITE_KEY_W - BLACK_KEY_W / 2
 }
 
-export function PianoKeyboard({ onKeyPress, highlightNotes = [], disabled }: Props) {
+export function PianoKeyboard({ onKeyPress, highlightNotes = [], activeNotes = [], disabled, keyMap = {} }: Props) {
   const highlighted = new Set(highlightNotes)
+  const active = new Set(activeNotes)
+
+  function whiteKeyFill(note: string): string {
+    if (active.has(note)) return '#D4923A'
+    if (highlighted.has(note)) return '#a5b4fc'
+    return 'white'
+  }
+
+  function blackKeyFill(note: string): string {
+    if (active.has(note)) return '#b87830'
+    if (highlighted.has(note)) return '#6366f1'
+    return '#1f2937'
+  }
 
   return (
     <svg
@@ -38,36 +53,60 @@ export function PianoKeyboard({ onKeyPress, highlightNotes = [], disabled }: Pro
     >
       {/* White keys */}
       {WHITE_NOTES.map((note, i) => (
-        <rect
-          key={note}
-          x={i * WHITE_KEY_W}
-          y={0}
-          width={WHITE_KEY_W - 1}
-          height={WHITE_KEY_H}
-          rx={3}
-          fill={highlighted.has(note) ? '#a5b4fc' : 'white'}
-          stroke="#d1d5db"
-          strokeWidth={1}
-          style={{ cursor: disabled ? 'default' : 'pointer' }}
-          onClick={() => !disabled && onKeyPress(note)}
-        />
+        <g key={note} onClick={() => !disabled && onKeyPress(note)} style={{ cursor: disabled ? 'default' : 'pointer' }}>
+          <rect
+            x={i * WHITE_KEY_W}
+            y={0}
+            width={WHITE_KEY_W - 1}
+            height={WHITE_KEY_H}
+            rx={3}
+            fill={whiteKeyFill(note)}
+            stroke="#d1d5db"
+            strokeWidth={1}
+          />
+          {keyMap[note] && (
+            <text
+              x={i * WHITE_KEY_W + (WHITE_KEY_W - 1) / 2}
+              y={WHITE_KEY_H - 10}
+              textAnchor="middle"
+              fontSize={9}
+              fontFamily="monospace"
+              fill="#9ca3af"
+              style={{ pointerEvents: 'none', userSelect: 'none' }}
+            >
+              {keyMap[note]}
+            </text>
+          )}
+        </g>
       ))}
       {/* Black keys */}
       {WHITE_NOTES.map((note, i) => {
         const black = BLACK_NOTE_MAP[note]
         if (!black) return null
         return (
-          <rect
-            key={black}
-            x={blackKeyX(i)}
-            y={0}
-            width={BLACK_KEY_W}
-            height={BLACK_KEY_H}
-            rx={2}
-            fill={highlighted.has(black) ? '#6366f1' : '#1f2937'}
-            style={{ cursor: disabled ? 'default' : 'pointer' }}
-            onClick={() => !disabled && onKeyPress(black)}
-          />
+          <g key={black} onClick={() => !disabled && onKeyPress(black)} style={{ cursor: disabled ? 'default' : 'pointer' }}>
+            <rect
+              x={blackKeyX(i)}
+              y={0}
+              width={BLACK_KEY_W}
+              height={BLACK_KEY_H}
+              rx={2}
+              fill={blackKeyFill(black)}
+            />
+            {keyMap[black] && (
+              <text
+                x={blackKeyX(i) + BLACK_KEY_W / 2}
+                y={BLACK_KEY_H - 8}
+                textAnchor="middle"
+                fontSize={8}
+                fontFamily="monospace"
+                fill="#9ca3af"
+                style={{ pointerEvents: 'none', userSelect: 'none' }}
+              >
+                {keyMap[black]}
+              </text>
+            )}
+          </g>
         )
       })}
     </svg>
