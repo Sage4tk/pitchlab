@@ -56,6 +56,10 @@ export function Melody() {
         setInputNotes((prev) => prev.slice(0, -1))
         return
       }
+      if (e.key === 'Escape') {
+        setInputNotes([])
+        return
+      }
       if (e.key === 'Enter' && phase === 'answering') {
         if (inputNotesRef.current.length > 0) submit(inputNotesRef.current)
         return
@@ -161,6 +165,19 @@ export function Melody() {
                     }}
                   >
                     ← Undo
+                  </button>
+                  <button
+                    onClick={() => setInputNotes([])}
+                    disabled={inputNotes.length === 0}
+                    style={{
+                      background: 'none', border: '1px solid var(--border)', borderRadius: 'var(--radius)',
+                      color: inputNotes.length === 0 ? 'var(--text-faint)' : 'var(--text-muted)',
+                      fontFamily: 'var(--font-body)', fontSize: '11px', letterSpacing: '0.06em', textTransform: 'uppercase',
+                      padding: '8px 16px', cursor: inputNotes.length === 0 ? 'not-allowed' : 'pointer',
+                      transition: 'border-color 0.15s, color 0.15s',
+                    }}
+                  >
+                    Clear
                   </button>
                   <button
                     onClick={handleSubmit}
