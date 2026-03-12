@@ -16,6 +16,7 @@ interface UseExerciseOptions<TQuestion, TAnswer> {
   generateQuestion: (difficulty: 1 | 2 | 3) => TQuestion
   checkAnswer: (question: TQuestion, answer: TAnswer) => boolean
   getItemLabel?: (question: TQuestion) => string
+  replayQuestion?: (q: TQuestion) => void
 }
 
 interface UseExerciseResult<TQuestion, TAnswer> {
@@ -27,11 +28,13 @@ interface UseExerciseResult<TQuestion, TAnswer> {
   currentRound: number
   totalRounds: number
   score: number
+  wrongQuestions: TQuestion[]
   startSession: (difficulty: 1 | 2 | 3, rounds: 3 | 5 | 10) => void
   play: () => void
   submit: (answer: TAnswer) => void
   next: () => void
   reset: () => void
+  startReview: (questions: TQuestion[]) => void
 }
 
 export function useExercise<TQuestion, TAnswer>({
@@ -39,6 +42,7 @@ export function useExercise<TQuestion, TAnswer>({
   generateQuestion,
   checkAnswer,
   getItemLabel,
+  replayQuestion,
 }: UseExerciseOptions<TQuestion, TAnswer>): UseExerciseResult<TQuestion, TAnswer> {
   const { user } = useSession()
   const addAttempt = useProgressStore((s) => s.addAttempt)
@@ -51,6 +55,7 @@ export function useExercise<TQuestion, TAnswer>({
   const [totalRounds, setTotalRounds] = useState(5)
   const [currentRound, setCurrentRound] = useState(0)
   const [score, setScore] = useState(0)
+  const [wrongQuestions, setWrongQuestions] = useState<TQuestion[]>([])
 
   // Refs so callbacks always see current values without stale closure issues
   const startTimeRef = useRef<number>(0)
@@ -59,6 +64,12 @@ export function useExercise<TQuestion, TAnswer>({
   const difficultyRef = useRef<1 | 2 | 3>(1)
   const getItemLabelRef = useRef(getItemLabel)
   getItemLabelRef.current = getItemLabel
+  const replayQuestionRef = useRef(replayQuestion)
+  replayQuestionRef.current = replayQuestion
+
+  // Review mode refs
+  const reviewQueueRef = useRef<TQuestion[]>([])
+  const isReviewModeRef = useRef(false)
 
   const startSession = useCallback((diff: 1 | 2 | 3, rounds: 3 | 5 | 10) => {
     setDifficulty(diff)
@@ -68,19 +79,47 @@ export function useExercise<TQuestion, TAnswer>({
     setCurrentRound(0)
     currentRoundRef.current = 0
     setScore(0)
+    setWrongQuestions([])
+    reviewQueueRef.current = []
+    isReviewModeRef.current = false
+    setQuestion(null)
+    setIsCorrect(null)
+    setPhase('idle')
+  }, [])
+
+  const startReview = useCallback((questions: TQuestion[]) => {
+    reviewQueueRef.current = [...questions]
+    isReviewModeRef.current = true
+    setWrongQuestions([])
+    setTotalRounds(questions.length)
+    totalRoundsRef.current = questions.length
+    setCurrentRound(0)
+    currentRoundRef.current = 0
+    setScore(0)
     setQuestion(null)
     setIsCorrect(null)
     setPhase('idle')
   }, [])
 
   const play = useCallback(() => {
-    const q = generateQuestion(difficulty)
-    setQuestion(q)
-    setIsCorrect(null)
-    currentRoundRef.current += 1
-    setCurrentRound(currentRoundRef.current)
-    setPhase('answering')
-    startTimeRef.current = Date.now()
+    if (isReviewModeRef.current && reviewQueueRef.current.length > 0) {
+      const q = reviewQueueRef.current.shift()!
+      setQuestion(q)
+      setIsCorrect(null)
+      currentRoundRef.current += 1
+      setCurrentRound(currentRoundRef.current)
+      setPhase('answering')
+      startTimeRef.current = Date.now()
+      replayQuestionRef.current?.(q)
+    } else {
+      const q = generateQuestion(difficulty)
+      setQuestion(q)
+      setIsCorrect(null)
+      currentRoundRef.current += 1
+      setCurrentRound(currentRoundRef.current)
+      setPhase('answering')
+      startTimeRef.current = Date.now()
+    }
   }, [generateQuestion, difficulty])
 
   const submit = useCallback(
@@ -90,6 +129,9 @@ export function useExercise<TQuestion, TAnswer>({
       const correct = checkAnswer(question, answer)
       setIsCorrect(correct)
       if (correct) setScore((s) => s + 1)
+      if (!correct && !isReviewModeRef.current) {
+        setWrongQuestions((prev) => [...prev, question])
+      }
       setPhase('feedback')
 
       const xp = correct ? calcXP(difficulty, answerMs) : 0
@@ -123,6 +165,14 @@ export function useExercise<TQuestion, TAnswer>({
     if (currentRoundRef.current >= totalRoundsRef.current) {
       setQuestion(null)
       setPhase('results')
+    } else if (isReviewModeRef.current && reviewQueueRef.current.length > 0) {
+      const q = reviewQueueRef.current.shift()!
+      setQuestion(q)
+      currentRoundRef.current += 1
+      setCurrentRound(currentRoundRef.current)
+      setPhase('answering')
+      startTimeRef.current = Date.now()
+      replayQuestionRef.current?.(q)
     } else {
       // Auto-advance: generate next question immediately, no play button between rounds
       const q = generateQuestion(difficultyRef.current)
@@ -141,6 +191,9 @@ export function useExercise<TQuestion, TAnswer>({
     setCurrentRound(0)
     currentRoundRef.current = 0
     setScore(0)
+    setWrongQuestions([])
+    reviewQueueRef.current = []
+    isReviewModeRef.current = false
   }, [])
 
   return {
@@ -152,10 +205,12 @@ export function useExercise<TQuestion, TAnswer>({
     currentRound,
     totalRounds,
     score,
+    wrongQuestions,
     startSession,
     play,
     submit,
     next,
     reset,
+    startReview,
   }
 }

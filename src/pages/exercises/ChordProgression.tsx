@@ -13,16 +13,19 @@ export function ChordProgression() {
   const generate = useCallback((d: 1 | 2 | 3) => ChordProgressionExercise.generate(d), [])
   const check = useCallback((q: ChordProgressionQuestion, a: string) => ChordProgressionExercise.check(q, a), [])
   const getItemLabel = useCallback((q: ChordProgressionQuestion) => q.label, [])
+  const replayQuestion = useCallback((q: ChordProgressionQuestion) => { void playChordProgression(q.chords.map((c) => c.notes)) }, [])
 
   const {
     phase, question, isCorrect, xpEarned,
     difficulty, currentRound, totalRounds, score,
     startSession, play, submit, next, reset,
+    wrongQuestions, startReview,
   } = useExercise<ChordProgressionQuestion, string>({
     category: 'progression',
     generateQuestion: generate,
     checkAnswer: check,
     getItemLabel,
+    replayQuestion,
   })
 
   const options = question
@@ -42,6 +45,7 @@ export function ChordProgression() {
       phase={phase} difficulty={difficulty}
       currentRound={currentRound} totalRounds={totalRounds} score={score}
       onStartSession={startSession} onReset={reset}
+      onReview={() => startReview(wrongQuestions)} wrongCount={wrongQuestions.length}
     >
       {phase === 'idle' && <PlayButton label="Play Progression" onClick={play} />}
 

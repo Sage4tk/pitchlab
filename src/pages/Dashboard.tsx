@@ -20,6 +20,7 @@ const EXERCISES: {
   { category: 'melody', label: 'Melody', symbol: '𝄞', path: '/exercises/melody', desc: 'Transcribe melodic phrases' },
   { category: 'rhythm', label: 'Rhythm', symbol: '♬', path: '/exercises/rhythm', desc: 'Tap rhythmic patterns' },
   { category: 'progression', label: 'Progressions', symbol: '♮', path: '/exercises/progression', desc: 'Identify chord sequences' },
+  { category: 'pitch-match', label: 'Pitch Match', symbol: '𝄢', path: '/exercises/pitch-match', desc: 'Sing notes back in tune' },
 ]
 
 const fadeUp = {

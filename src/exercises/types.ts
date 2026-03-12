@@ -1,4 +1,4 @@
-export type Category = 'interval' | 'chord' | 'melody' | 'rhythm' | 'progression'
+export type Category = 'interval' | 'chord' | 'melody' | 'rhythm' | 'progression' | 'pitch-match'
 
 export interface Exercise<TQuestion, TAnswer = string> {
   generate(difficulty: 1 | 2 | 3): TQuestion

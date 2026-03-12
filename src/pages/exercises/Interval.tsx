@@ -16,12 +16,14 @@ export function Interval() {
   const generate = useCallback((d: 1 | 2 | 3) => IntervalExercise.generate(d), [])
   const check = useCallback((q: IntervalQuestion, a: string) => IntervalExercise.check(q, a), [])
   const getItemLabel = useCallback((q: IntervalQuestion) => q.label, [])
+  const replayQuestion = useCallback((q: IntervalQuestion) => { void playInterval(q.root, q.target) }, [])
 
   const {
     phase, question, isCorrect, xpEarned,
     difficulty, currentRound, totalRounds, score,
     startSession, play, submit, next, reset,
-  } = useExercise<IntervalQuestion, string>({ category: 'interval', generateQuestion: generate, checkAnswer: check, getItemLabel })
+    wrongQuestions, startReview,
+  } = useExercise<IntervalQuestion, string>({ category: 'interval', generateQuestion: generate, checkAnswer: check, getItemLabel, replayQuestion })
 
   const options = question
     ? IntervalExercise.options(question, difficulty)
@@ -40,6 +42,7 @@ export function Interval() {
       phase={phase} difficulty={difficulty}
       currentRound={currentRound} totalRounds={totalRounds} score={score}
       onStartSession={startSession} onReset={reset}
+      onReview={() => startReview(wrongQuestions)} wrongCount={wrongQuestions.length}
     >
       {phase === 'idle' && <PlayButton label="Play Interval" onClick={play} />}
 
@@ -89,6 +92,8 @@ interface ShellProps {
   onStartSession: (difficulty: 1 | 2 | 3, rounds: 3 | 5 | 10) => void
   onReset: () => void
   children: React.ReactNode
+  onReview?: () => void
+  wrongCount?: number
 }
 
 const DIFFICULTY_LABELS: Record<1 | 2 | 3, string> = { 1: 'Easy', 2: 'Medium', 3: 'Hard' }
@@ -102,7 +107,7 @@ const INSTRUMENT_OPTIONS: { value: SoundPreset; label: string }[] = [
 ]
 
 export function ExerciseShell({
-  title, symbol, phase, difficulty, currentRound, totalRounds, score, onStartSession, onReset, children,
+  title, symbol, phase, difficulty, currentRound, totalRounds, score, onStartSession, onReset, children, onReview, wrongCount,
 }: ShellProps) {
   const [selDiff, setSelDiff] = useState<1 | 2 | 3>(1)
   const [selRounds, setSelRounds] = useState<3 | 5 | 10>(5)
@@ -310,6 +315,29 @@ export function ExerciseShell({
 
             {/* Actions */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', width: '100%' }}>
+              {wrongCount != null && wrongCount > 0 && onReview && (
+                <button
+                  onClick={onReview}
+                  style={{
+                    padding: '14px',
+                    background: 'transparent',
+                    color: 'var(--accent)',
+                    border: '1px solid var(--accent)',
+                    borderRadius: 'var(--radius)',
+                    fontFamily: 'var(--font-body)',
+                    fontSize: '12px',
+                    fontWeight: 600,
+                    letterSpacing: '0.08em',
+                    textTransform: 'uppercase',
+                    cursor: 'pointer',
+                    transition: 'background 0.15s, border-color 0.15s',
+                  }}
+                  onMouseEnter={e => { e.currentTarget.style.background = 'var(--accent-dim)' }}
+                  onMouseLeave={e => { e.currentTarget.style.background = 'transparent' }}
+                >
+                  ↩ Review {wrongCount} Mistake{wrongCount === 1 ? '' : 's'}
+                </button>
+              )}
               <button
                 onClick={onReset}
                 style={{

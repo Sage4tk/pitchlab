@@ -29,12 +29,14 @@ export function Melody() {
 
   const generate = useCallback((d: 1 | 2 | 3) => MelodyExercise.generate(d), [])
   const check = useCallback((q: MelodyQuestion, a: string[]) => MelodyExercise.check(q, a), [])
+  const replayQuestion = useCallback((q: MelodyQuestion) => { void playMelody(q.notes) }, [])
 
   const {
     phase, question, isCorrect, xpEarned,
     difficulty, currentRound, totalRounds, score,
     startSession, play, submit, next, reset,
-  } = useExercise<MelodyQuestion, string[]>({ category: 'melody', generateQuestion: generate, checkAnswer: check })
+    wrongQuestions, startReview,
+  } = useExercise<MelodyQuestion, string[]>({ category: 'melody', generateQuestion: generate, checkAnswer: check, replayQuestion })
 
   // Keep ref in sync so keydown handler always sees latest inputNotes
   useEffect(() => { inputNotesRef.current = inputNotes }, [inputNotes])
@@ -109,6 +111,7 @@ export function Melody() {
       phase={phase} difficulty={difficulty}
       currentRound={currentRound} totalRounds={totalRounds} score={score}
       onStartSession={startSession} onReset={reset}
+      onReview={() => startReview(wrongQuestions)} wrongCount={wrongQuestions.length}
     >
       {phase === 'idle' && <PlayButton label="Play Melody" onClick={play} />}
 

@@ -32,6 +32,7 @@ const SYMBOLS: Record<Category, string> = {
   melody: '𝄞',
   rhythm: '♬',
   progression: '♮',
+  'pitch-match': '𝄢',
 }
 
 export function Progress() {

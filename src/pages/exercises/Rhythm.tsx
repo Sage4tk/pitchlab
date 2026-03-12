@@ -11,12 +11,14 @@ import { ExerciseShell, FeedbackRow, ReplayButton } from '@/pages/exercises/Inte
 export function Rhythm() {
   const generate = useCallback((d: 1 | 2 | 3) => RhythmExercise.generate(d), [])
   const check = useCallback((q: RhythmQuestion, a: boolean[]) => RhythmExercise.check(q, a), [])
+  const replayQuestion = useCallback((q: RhythmQuestion) => { void playRhythm(q.pattern, q.bpm) }, [])
 
   const {
     phase, question, isCorrect, xpEarned,
     difficulty, currentRound, totalRounds, score,
     startSession, play, submit, next, reset,
-  } = useExercise<RhythmQuestion, boolean[]>({ category: 'rhythm', generateQuestion: generate, checkAnswer: check })
+    wrongQuestions, startReview,
+  } = useExercise<RhythmQuestion, boolean[]>({ category: 'rhythm', generateQuestion: generate, checkAnswer: check, replayQuestion })
 
   function handleReplay() {
     if (!question) return
@@ -29,6 +31,7 @@ export function Rhythm() {
       phase={phase} difficulty={difficulty}
       currentRound={currentRound} totalRounds={totalRounds} score={score}
       onStartSession={startSession} onReset={reset}
+      onReview={() => startReview(wrongQuestions)} wrongCount={wrongQuestions.length}
     >
       <p style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: 'var(--text-muted)', margin: 0, letterSpacing: '0.02em' }}>
         Listen to the rhythm, then click the beats you heard.

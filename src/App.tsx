@@ -14,6 +14,7 @@ const Chord = lazy(() => import('@/pages/exercises/Chord').then(m => ({ default:
 const Melody = lazy(() => import('@/pages/exercises/Melody').then(m => ({ default: m.Melody })))
 const Rhythm = lazy(() => import('@/pages/exercises/Rhythm').then(m => ({ default: m.Rhythm })))
 const ChordProgression = lazy(() => import('@/pages/exercises/ChordProgression').then(m => ({ default: m.ChordProgression })))
+const PitchMatch = lazy(() => import('@/pages/exercises/PitchMatch').then(m => ({ default: m.PitchMatch })))
 const Progress = lazy(() => import('@/pages/Progress').then(m => ({ default: m.Progress })))
 const Settings = lazy(() => import('@/pages/Settings').then(m => ({ default: m.Settings })))
 
@@ -78,6 +79,14 @@ export default function App() {
           element={
             <ProtectedRoute>
               <ChordProgression />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/exercises/pitch-match"
+          element={
+            <ProtectedRoute>
+              <PitchMatch />
             </ProtectedRoute>
           }
         />
