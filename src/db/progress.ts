@@ -29,6 +29,22 @@ export async function getAllRecentAttempts(userId: string, n = 100): Promise<Att
   return snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<Attempt, 'id'>) }))
 }
 
+export async function getPracticeDays(userId: string): Promise<Record<string, number>> {
+  const q = query(
+    collection(db, 'users', userId, 'progress'),
+    orderBy('createdAt', 'desc'),
+    limit(500),
+  )
+  const snap = await getDocs(q)
+  const counts: Record<string, number> = {}
+  snap.docs.forEach((d) => {
+    const data = d.data() as Omit<Attempt, 'id'>
+    const date = new Date(data.createdAt).toISOString().slice(0, 10)
+    counts[date] = (counts[date] ?? 0) + 1
+  })
+  return counts
+}
+
 export async function getRecentAttempts(
   userId: string,
   category: Category,

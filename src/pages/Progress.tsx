@@ -15,7 +15,8 @@ import {
 import { useSession } from '@/hooks/useSession'
 import { useProgressStore } from '@/store/useProgressStore'
 import { getStreak } from '@/db/streaks'
-import { getRecentAttempts } from '@/db/progress'
+import { getRecentAttempts, getPracticeDays } from '@/db/progress'
+import { StreakCalendar } from '@/components/StreakCalendar'
 import type { Category } from '@/exercises/types'
 
 const CATEGORIES: Category[] = ['interval', 'chord', 'melody', 'rhythm', 'progression']
@@ -39,6 +40,7 @@ export function Progress() {
   const [streak, setStreak] = useState<{ current: number; longest: number } | null>(null)
   const [selectedCategory, setSelectedCategory] = useState<Category>('interval')
   const [lineData, setLineData] = useState<LinePoint[]>([])
+  const [practiceDays, setPracticeDays] = useState<Record<string, number>>({})
 
   const radarData = CATEGORIES.map((c) => ({
     category: c.charAt(0).toUpperCase() + c.slice(1),
@@ -48,6 +50,7 @@ export function Progress() {
   useEffect(() => {
     if (!user) return
     getStreak(user.uid).then(setStreak).catch(console.error)
+    getPracticeDays(user.uid).then(setPracticeDays).catch(console.error)
   }, [user])
 
   useEffect(() => {
@@ -135,6 +138,27 @@ export function Progress() {
             ))}
           </div>
         )}
+
+        {/* Streak calendar */}
+        <div style={{
+          background: 'var(--bg-surface)',
+          border: '1px solid var(--border)',
+          borderRadius: 'var(--radius-md)',
+          padding: '24px',
+        }}>
+          <div style={{
+            fontFamily: 'var(--font-display)',
+            fontSize: '20px',
+            fontWeight: 600,
+            color: 'var(--text)',
+            marginBottom: '20px',
+          }}>
+            Practice History
+          </div>
+          <div data-calendar style={{ position: 'relative' }}>
+            <StreakCalendar practiceDays={practiceDays} />
+          </div>
+        </div>
 
         {/* Radar chart */}
         <div style={{
