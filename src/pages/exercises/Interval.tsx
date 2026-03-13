@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useExercise } from '@/hooks/useExercise'
 import type { Phase } from '@/hooks/useExercise'
@@ -7,7 +7,7 @@ import { IntervalExercise } from '@/exercises/IntervalExercise'
 import type { IntervalQuestion } from '@/exercises/IntervalExercise'
 import { AnswerGrid } from '@/components/AnswerGrid'
 import { PlayButton } from '@/components/PlayButton'
-import { playInterval, setSoundPreset as setAudioPreset } from '@/audio/AudioEngine'
+import { playInterval, setSoundPreset as setAudioPreset, isPianoReady, onPianoReady } from '@/audio/AudioEngine'
 import type { SoundPreset } from '@/audio/AudioEngine'
 import { useExerciseStore } from '@/store/useExerciseStore'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -112,6 +112,14 @@ export function ExerciseShell({
   const [selDiff, setSelDiff] = useState<1 | 2 | 3>(1)
   const [selRounds, setSelRounds] = useState<3 | 5 | 10>(5)
   const { soundPreset, setSoundPreset: storeSoundPreset } = useExerciseStore()
+  const [pianoSamplerReady, setPianoSamplerReady] = useState(() => isPianoReady())
+
+  useEffect(() => {
+    if (soundPreset !== 'piano') { setPianoSamplerReady(true); return }
+    if (isPianoReady()) { setPianoSamplerReady(true); return }
+    setPianoSamplerReady(false)
+    return onPianoReady(() => setPianoSamplerReady(true))
+  }, [soundPreset])
 
   function handleSoundChange(preset: SoundPreset) {
     storeSoundPreset(preset)
@@ -215,13 +223,30 @@ export function ExerciseShell({
               </div>
             </div>
 
+            {/* Piano loading indicator */}
+            {soundPreset === 'piano' && !pianoSamplerReady && (
+              <div style={{
+                fontFamily: 'var(--font-body)',
+                fontSize: '11px',
+                letterSpacing: '0.06em',
+                color: 'var(--text-muted)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+              }}>
+                <span style={{ animation: 'spin 1s linear infinite', display: 'inline-block' }}>♩</span>
+                Loading piano samples…
+              </div>
+            )}
+
             {/* Start */}
             <button
               onClick={() => onStartSession(selDiff, selRounds)}
+              disabled={soundPreset === 'piano' && !pianoSamplerReady}
               style={{
                 padding: '16px',
-                background: 'var(--accent)',
-                color: '#0F0D0B',
+                background: soundPreset === 'piano' && !pianoSamplerReady ? 'var(--bg-surface-2)' : 'var(--accent)',
+                color: soundPreset === 'piano' && !pianoSamplerReady ? 'var(--text-muted)' : '#0F0D0B',
                 border: 'none',
                 borderRadius: 'var(--radius)',
                 fontFamily: 'var(--font-body)',
@@ -229,20 +254,22 @@ export function ExerciseShell({
                 fontWeight: 700,
                 letterSpacing: '0.1em',
                 textTransform: 'uppercase',
-                cursor: 'pointer',
-                boxShadow: '0 4px 20px var(--accent-glow)',
+                cursor: soundPreset === 'piano' && !pianoSamplerReady ? 'not-allowed' : 'pointer',
+                boxShadow: soundPreset === 'piano' && !pianoSamplerReady ? 'none' : '0 4px 20px var(--accent-glow)',
                 transition: 'background 0.15s, transform 0.12s',
               }}
               onMouseEnter={e => {
+                if (soundPreset === 'piano' && !pianoSamplerReady) return
                 e.currentTarget.style.background = 'var(--accent-bright)'
                 e.currentTarget.style.transform = 'translateY(-1px)'
               }}
               onMouseLeave={e => {
+                if (soundPreset === 'piano' && !pianoSamplerReady) return
                 e.currentTarget.style.background = 'var(--accent)'
                 e.currentTarget.style.transform = 'translateY(0)'
               }}
             >
-              Begin Session
+              {soundPreset === 'piano' && !pianoSamplerReady ? 'Loading Samples…' : 'Begin Session'}
             </button>
           </div>
         </Card>

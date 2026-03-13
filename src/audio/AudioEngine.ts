@@ -2,7 +2,7 @@ import * as Tone from 'tone'
 
 export type SoundPreset = OscillatorType | 'piano' | 'guitar'
 
-let currentPreset: SoundPreset = 'triangle'
+let currentPreset: SoundPreset = 'piano'
 
 // ── Synth (oscillator presets) ──────────────────────────────────────────────
 let polySynth: Tone.PolySynth | null = null
@@ -19,9 +19,12 @@ function getPolySynth(): Tone.PolySynth {
 
 // ── Piano (Salamander Grand Piano samples) ───────────────────────────────────
 let pianoSampler: Tone.Sampler | null = null
+let pianoReady = false
+let pianoReadyCbs: (() => void)[] = []
 
 function getPianoSampler(): Tone.Sampler {
   if (!pianoSampler) {
+    pianoReady = false
     pianoSampler = new Tone.Sampler({
       urls: {
         A0: 'A0.mp3',  C1: 'C1.mp3',  'F#1': 'Fs1.mp3',
@@ -34,9 +37,29 @@ function getPianoSampler(): Tone.Sampler {
         A7: 'A7.mp3',  C8: 'C8.mp3',
       },
       baseUrl: 'https://tonejs.github.io/audio/salamander/',
+      onload() {
+        pianoReady = true
+        pianoReadyCbs.forEach((cb) => cb())
+        pianoReadyCbs = []
+      },
     }).toDestination()
   }
   return pianoSampler
+}
+
+export function isPianoReady(): boolean { return pianoReady }
+
+export function onPianoReady(cb: () => void): () => void {
+  if (pianoReady) { cb(); return () => {} }
+  pianoReadyCbs.push(cb)
+  return () => {
+    const idx = pianoReadyCbs.indexOf(cb)
+    if (idx >= 0) pianoReadyCbs.splice(idx, 1)
+  }
+}
+
+export function preloadPiano(): void {
+  getPianoSampler() // triggers lazy init + async sample loading
 }
 
 // ── Guitar (PluckSynth pool + reverb) ────────────────────────────────────────
@@ -183,7 +206,7 @@ export async function playChordProgression(chordNotes: string[][], bpm = 70): Pr
 export function setSoundPreset(preset: SoundPreset): void {
   currentPreset = preset
   if (polySynth) { polySynth.dispose(); polySynth = null }
-  if (pianoSampler) { pianoSampler.dispose(); pianoSampler = null }
+  if (pianoSampler) { pianoSampler.dispose(); pianoSampler = null; pianoReady = false; pianoReadyCbs = [] }
   if (pluckPool.length > 0) {
     pluckPool.forEach((p) => p.dispose())
     pluckPool = []

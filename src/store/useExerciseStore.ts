@@ -16,7 +16,7 @@ interface ExerciseState {
 export const useExerciseStore = create<ExerciseState>((set) => ({
   category: 'interval',
   difficulty: 1,
-  soundPreset: 'triangle',
+  soundPreset: 'piano',
   keySignature: 'C',
 
   setCategory: (category) => set({ category }),

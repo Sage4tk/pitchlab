@@ -3,10 +3,70 @@ import { Link } from 'react-router-dom'
 import { useSession } from '@/hooks/useSession'
 import { useProgressStore } from '@/store/useProgressStore'
 import { useXPStore } from '@/store/useXPStore'
+import { useSpacedRepStore } from '@/store/useSpacedRepStore'
 import { getStreak } from '@/db/streaks'
 import { ProgressRing } from '@/components/ProgressRing'
 import type { Category } from '@/exercises/types'
 import { motion } from 'framer-motion'
+
+/* ── Daily Missions ──────────────────────────────────────────── */
+
+interface Mission {
+  id: string
+  title: string
+  category: Category
+  difficulty: 1 | 2 | 3
+  target: number
+  path: string
+  symbol: string
+}
+
+const MISSION_POOL: Mission[] = [
+  { id: 'interval-d1', title: 'Interval Warmup',      category: 'interval',    difficulty: 1, target: 5, path: '/exercises/interval',    symbol: '♩' },
+  { id: 'interval-d2', title: 'Interval Challenge',   category: 'interval',    difficulty: 2, target: 5, path: '/exercises/interval',    symbol: '♩' },
+  { id: 'chord-d1',    title: 'Chord Recognition',    category: 'chord',       difficulty: 1, target: 5, path: '/exercises/chord',       symbol: '♫' },
+  { id: 'chord-d2',    title: 'Advanced Chords',      category: 'chord',       difficulty: 2, target: 5, path: '/exercises/chord',       symbol: '♫' },
+  { id: 'melody-d1',   title: 'Melody Phrases',       category: 'melody',      difficulty: 1, target: 3, path: '/exercises/melody',      symbol: '𝄞' },
+  { id: 'rhythm-d1',   title: 'Rhythm Drill',         category: 'rhythm',      difficulty: 1, target: 5, path: '/exercises/rhythm',      symbol: '♬' },
+  { id: 'prog-d1',     title: 'Progression Read',     category: 'progression', difficulty: 1, target: 5, path: '/exercises/progression', symbol: '♮' },
+  { id: 'prog-d2',     title: 'Progression Push',     category: 'progression', difficulty: 2, target: 3, path: '/exercises/progression', symbol: '♮' },
+  { id: 'pitch-d1',    title: 'Pitch Tune-up',        category: 'pitch-match', difficulty: 1, target: 5, path: '/exercises/pitch-match', symbol: '𝄢' },
+  { id: 'chord-d3',    title: 'Hard Chord Mastery',   category: 'chord',       difficulty: 3, target: 3, path: '/exercises/chord',       symbol: '♫' },
+]
+
+function seededRandGen(seed: number) {
+  let s = seed
+  return () => {
+    s = (s * 1664525 + 1013904223) & 0x7fffffff
+    return s / 0x7fffffff
+  }
+}
+
+function todayDateKey(): string {
+  const d = new Date()
+  return `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}`
+}
+
+function getDailyMissions(): Mission[] {
+  const key = todayDateKey()
+  let seed = 0
+  for (const c of key) seed = (seed * 31 + c.charCodeAt(0)) & 0x7fffffff
+  const rand = seededRandGen(seed)
+  const pool = [...MISSION_POOL]
+  const selected: Mission[] = []
+  while (selected.length < 3 && pool.length > 0) {
+    const idx = Math.floor(rand() * pool.length)
+    selected.push(pool[idx])
+    pool.splice(idx, 1)
+  }
+  return selected
+}
+
+const CATEGORY_DISPLAY: Record<Category, string> = {
+  interval: 'Intervals', chord: 'Chords', melody: 'Melody',
+  rhythm: 'Rhythm', progression: 'Progressions', 'pitch-match': 'Pitch Match',
+}
+const DIFF_LABEL: Record<1 | 2 | 3, string> = { 1: 'Easy', 2: 'Medium', 3: 'Hard' }
 
 const EXERCISES: {
   category: Category
@@ -32,12 +92,35 @@ export function Dashboard() {
   const { user } = useSession()
   const attempts = useProgressStore((s) => s.attempts)
   const levelInfo = useXPStore((s) => s.levelInfo)
+  const spacedRepItems = useSpacedRepStore((s) => s.items)
   const [streak, setStreak] = useState<{ current: number; longest: number } | null>(null)
 
   useEffect(() => {
     if (!user) return
     getStreak(user.uid).then(setStreak).catch(console.error)
   }, [user])
+
+  // Daily missions
+  const dailyMissions = getDailyMissions()
+  const todayStart = new Date(); todayStart.setHours(0, 0, 0, 0)
+  const todayStartMs = todayStart.getTime()
+  const correctToday = attempts.filter((a) => a.correct && a.createdAt >= todayStartMs)
+  const correctByCategory = correctToday.reduce((acc, a) => {
+    acc[a.category] = (acc[a.category] ?? 0) + 1
+    return acc
+  }, {} as Partial<Record<Category, number>>)
+
+  // Weak spots from spaced rep (items with enough data, sorted by accuracy)
+  const weakSpots = Object.entries(spacedRepItems)
+    .filter(([, stats]) => stats.total >= 5)
+    .map(([key, stats]) => {
+      const colonIdx = key.indexOf(':')
+      const category = key.slice(0, colonIdx) as Category
+      const label = key.slice(colonIdx + 1)
+      return { category, label, accuracy: stats.correct / stats.total, total: stats.total }
+    })
+    .sort((a, b) => a.accuracy - b.accuracy)
+    .slice(0, 5)
 
   return (
     <div style={{
@@ -130,6 +213,129 @@ export function Dashboard() {
           )}
         </motion.div>
 
+        {/* Daily Missions */}
+        <motion.div
+          variants={fadeUp}
+          initial="hidden"
+          animate="visible"
+          transition={{ duration: 0.5, delay: 0.08 }}
+          style={{ marginBottom: '24px' }}
+        >
+          <div style={{
+            display: 'flex',
+            alignItems: 'baseline',
+            justifyContent: 'space-between',
+            marginBottom: '12px',
+          }}>
+            <div style={{
+              fontFamily: 'var(--font-display)',
+              fontSize: '20px',
+              fontWeight: 600,
+              color: 'var(--text)',
+              letterSpacing: '-0.01em',
+            }}>
+              Today's Missions
+            </div>
+            <div style={{
+              fontFamily: 'var(--font-body)',
+              fontSize: '10px',
+              letterSpacing: '0.08em',
+              textTransform: 'uppercase',
+              color: 'var(--text-faint)',
+            }}>
+              Resets at midnight
+            </div>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            {dailyMissions.map((m) => {
+              const done = (correctByCategory[m.category] ?? 0) >= m.target
+              return (
+                <Link key={m.id} to={m.path} style={{ textDecoration: 'none' }}>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '16px',
+                    padding: '14px 18px',
+                    background: done ? 'var(--bg-surface-2)' : 'var(--bg-surface)',
+                    border: '1px solid',
+                    borderColor: done ? 'var(--success)' : 'var(--border)',
+                    borderRadius: 'var(--radius-md)',
+                    transition: 'border-color 0.15s, background 0.15s',
+                    opacity: done ? 0.75 : 1,
+                  }}
+                    onMouseEnter={e => {
+                      if (!done) (e.currentTarget as HTMLDivElement).style.borderColor = 'var(--accent)'
+                    }}
+                    onMouseLeave={e => {
+                      (e.currentTarget as HTMLDivElement).style.borderColor = done ? 'var(--success)' : 'var(--border)'
+                    }}
+                  >
+                    {/* Completion dot */}
+                    <div style={{
+                      width: '18px',
+                      height: '18px',
+                      borderRadius: '50%',
+                      border: '1.5px solid',
+                      borderColor: done ? 'var(--success)' : 'var(--border)',
+                      background: done ? 'var(--success)' : 'transparent',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      flexShrink: 0,
+                      fontSize: '10px',
+                      color: '#fff',
+                      fontWeight: 700,
+                    }}>
+                      {done ? '✓' : ''}
+                    </div>
+                    <div style={{
+                      fontFamily: 'var(--font-display)',
+                      fontSize: '18px',
+                      color: 'var(--accent)',
+                      lineHeight: 1,
+                      flexShrink: 0,
+                      opacity: 0.8,
+                    }}>
+                      {m.symbol}
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{
+                        fontFamily: 'var(--font-body)',
+                        fontSize: '12px',
+                        fontWeight: 500,
+                        color: done ? 'var(--text-muted)' : 'var(--text)',
+                        textDecoration: done ? 'line-through' : 'none',
+                        marginBottom: '2px',
+                      }}>
+                        {m.title}
+                      </div>
+                      <div style={{
+                        fontFamily: 'var(--font-body)',
+                        fontSize: '10px',
+                        color: 'var(--text-faint)',
+                        letterSpacing: '0.04em',
+                      }}>
+                        {CATEGORY_DISPLAY[m.category]} · {DIFF_LABEL[m.difficulty]}
+                      </div>
+                    </div>
+                    {/* Progress counter */}
+                    <div style={{
+                      fontFamily: 'var(--font-body)',
+                      fontSize: '11px',
+                      fontWeight: 600,
+                      color: done ? 'var(--success)' : 'var(--accent)',
+                      letterSpacing: '0.04em',
+                      flexShrink: 0,
+                    }}>
+                      {Math.min(correctByCategory[m.category] ?? 0, m.target)}/{m.target}
+                    </div>
+                  </div>
+                </Link>
+              )
+            })}
+          </div>
+        </motion.div>
+
         {/* Exercise grid */}
         <motion.div
           variants={fadeUp}
@@ -211,6 +417,117 @@ export function Dashboard() {
             )
           })}
         </motion.div>
+
+        {/* Weak Spot Panel */}
+        {weakSpots.length > 0 && (
+          <motion.div
+            variants={fadeUp}
+            initial="hidden"
+            animate="visible"
+            transition={{ duration: 0.5, delay: 0.14 }}
+            style={{
+              background: 'var(--bg-surface)',
+              border: '1px solid var(--border)',
+              borderRadius: 'var(--radius-md)',
+              padding: '20px',
+              marginBottom: '24px',
+            }}
+          >
+            <div style={{
+              display: 'flex',
+              alignItems: 'baseline',
+              justifyContent: 'space-between',
+              marginBottom: '16px',
+            }}>
+              <div style={{
+                fontFamily: 'var(--font-display)',
+                fontSize: '20px',
+                fontWeight: 600,
+                color: 'var(--text)',
+                letterSpacing: '-0.01em',
+              }}>
+                Weak Spots
+              </div>
+              <div style={{
+                fontFamily: 'var(--font-body)',
+                fontSize: '10px',
+                letterSpacing: '0.08em',
+                textTransform: 'uppercase',
+                color: 'var(--text-faint)',
+              }}>
+                Drill these to improve
+              </div>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              {weakSpots.map((spot) => {
+                const pct = Math.round(spot.accuracy * 100)
+                const path = spot.category === 'progression'
+                  ? '/exercises/progression'
+                  : spot.category === 'pitch-match'
+                    ? '/exercises/pitch-match'
+                    : `/exercises/${spot.category}`
+                return (
+                  <Link key={`${spot.category}:${spot.label}`} to={path} style={{ textDecoration: 'none' }}>
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '12px',
+                      padding: '10px 14px',
+                      background: 'var(--bg-surface-2)',
+                      border: '1px solid var(--border)',
+                      borderRadius: 'var(--radius)',
+                      transition: 'border-color 0.15s',
+                    }}
+                      onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.borderColor = 'var(--accent)' }}
+                      onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.borderColor = 'var(--border)' }}
+                    >
+                      <div style={{ flex: 1 }}>
+                        <span style={{
+                          fontFamily: 'var(--font-body)',
+                          fontSize: '12px',
+                          fontWeight: 500,
+                          color: 'var(--text)',
+                        }}>
+                          {spot.label}
+                        </span>
+                        <span style={{
+                          fontFamily: 'var(--font-body)',
+                          fontSize: '10px',
+                          color: 'var(--text-faint)',
+                          marginLeft: '8px',
+                          letterSpacing: '0.04em',
+                        }}>
+                          {CATEGORY_DISPLAY[spot.category]}
+                        </span>
+                      </div>
+                      {/* Accuracy bar */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0 }}>
+                        <div style={{ width: '80px', height: '4px', background: 'var(--bg-highlight)', borderRadius: '2px', overflow: 'hidden' }}>
+                          <div style={{
+                            height: '100%',
+                            width: `${pct}%`,
+                            background: pct < 40 ? 'var(--error)' : pct < 65 ? 'var(--accent)' : 'var(--success)',
+                            borderRadius: '2px',
+                          }} />
+                        </div>
+                        <span style={{
+                          fontFamily: 'var(--font-body)',
+                          fontSize: '11px',
+                          fontWeight: 600,
+                          color: pct < 40 ? 'var(--error)' : pct < 65 ? 'var(--accent)' : 'var(--success)',
+                          minWidth: '32px',
+                          textAlign: 'right',
+                        }}>
+                          {pct}%
+                        </span>
+                      </div>
+                    </div>
+                  </Link>
+                )
+              })}
+            </div>
+          </motion.div>
+        )}
 
         {/* XP / Level bar */}
         <motion.div

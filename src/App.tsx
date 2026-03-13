@@ -1,9 +1,10 @@
-import { lazy, Suspense } from 'react'
+import { lazy, Suspense, useEffect } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { Center, Spinner } from '@chakra-ui/react'
 import { Navbar } from '@/components/Navbar'
 import { ProtectedRoute } from '@/components/ProtectedRoute'
 import { Landing } from '@/pages/Landing'
+import { preloadPiano } from '@/audio/AudioEngine'
 
 const Login = lazy(() => import('@/pages/Login').then(m => ({ default: m.Login })))
 const Signup = lazy(() => import('@/pages/Signup').then(m => ({ default: m.Signup })))
@@ -25,6 +26,8 @@ const PageSpinner = () => (
 )
 
 export default function App() {
+  useEffect(() => { preloadPiano() }, [])
+
   return (
     <BrowserRouter>
       <Navbar />
