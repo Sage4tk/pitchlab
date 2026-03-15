@@ -13,6 +13,7 @@ function autoCorrelate(buf: Float32Array, sampleRate: number): number {
   if (rms < 0.01) return -1
 
   let last_correlation = 1
+  let foundGoodCorrelation = false
   for (let offset = 1; offset < MAX_SAMPLES; offset++) {
     let correlation = 0
     for (let i = 0; i < MAX_SAMPLES; i++) {
@@ -20,10 +21,15 @@ function autoCorrelate(buf: Float32Array, sampleRate: number): number {
     }
     correlation = 1 - correlation / MAX_SAMPLES
     if (correlation > 0.9 && correlation > last_correlation) {
-      best_offset = offset
-      best_correlation = correlation
+      foundGoodCorrelation = true
+      if (correlation > best_correlation) {
+        best_correlation = correlation
+        best_offset = offset
+      }
+    } else if (foundGoodCorrelation) {
+      // Correlation peaked and is now dropping — first good peak found, stop here
+      return sampleRate / best_offset
     }
-    if (correlation > best_correlation) best_correlation = correlation
     last_correlation = correlation
   }
   if (best_correlation < 0.01) return -1

@@ -32,22 +32,32 @@ export function PitchMatch() {
 
   // Track how long the detected pitch has been in-tune
   const stableTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const dropoutTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const isInTune = question != null
     && PitchMatchExercise.check(question.targetNote, detectedNote, detectedCents)
 
-  // Auto-submit when in-tune for 600ms
+  // Auto-submit when in-tune for 600ms; brief dropouts (<150ms) don't reset the timer
   useEffect(() => {
     if (phase !== 'answering') return
     if (isInTune) {
+      // Cancel any pending dropout reset
+      if (dropoutTimerRef.current) {
+        clearTimeout(dropoutTimerRef.current)
+        dropoutTimerRef.current = null
+      }
       if (!stableTimerRef.current) {
         stableTimerRef.current = setTimeout(() => {
           if (detectedNote) submit(detectedNote)
         }, 600)
       }
     } else {
-      if (stableTimerRef.current) {
-        clearTimeout(stableTimerRef.current)
-        stableTimerRef.current = null
+      // Only reset after 150ms of being out of tune (grace period for mic dropouts)
+      if (stableTimerRef.current && !dropoutTimerRef.current) {
+        dropoutTimerRef.current = setTimeout(() => {
+          clearTimeout(stableTimerRef.current!)
+          stableTimerRef.current = null
+          dropoutTimerRef.current = null
+        }, 150)
       }
     }
   }, [isInTune, phase, detectedNote, submit])
@@ -61,10 +71,11 @@ export function PitchMatch() {
     }
   }, [phase]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Cleanup timer on unmount
+  // Cleanup timers on unmount
   useEffect(() => {
     return () => {
       if (stableTimerRef.current) clearTimeout(stableTimerRef.current)
+      if (dropoutTimerRef.current) clearTimeout(dropoutTimerRef.current)
     }
   }, [])
 
@@ -86,10 +97,8 @@ export function PitchMatch() {
   }
 
   function handleNext() {
-    if (stableTimerRef.current) {
-      clearTimeout(stableTimerRef.current)
-      stableTimerRef.current = null
-    }
+    if (dropoutTimerRef.current) { clearTimeout(dropoutTimerRef.current); dropoutTimerRef.current = null }
+    if (stableTimerRef.current) { clearTimeout(stableTimerRef.current); stableTimerRef.current = null }
     next()
   }
 
