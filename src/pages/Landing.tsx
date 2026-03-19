@@ -32,12 +32,51 @@ const features = [
     description: 'Hear chord sequences and identify common harmonic progressions.',
     path: '/exercises/progression',
   },
+  {
+    symbol: '♪',
+    name: 'Pitch Match',
+    description: 'Sing into your mic and match the target pitch with real-time feedback.',
+    path: '/exercises/pitch-match',
+  },
+]
+
+const highlights = [
+  {
+    symbol: '⬆',
+    name: 'XP & Leveling',
+    description: 'Earn experience points with every session and watch your level grow.',
+  },
+  {
+    symbol: '🔁',
+    name: 'Smart Practice',
+    description: 'Spaced repetition surfaces your weak spots so you improve faster.',
+  },
+  {
+    symbol: '🔥',
+    name: 'Heat Map',
+    description: 'Visualize your training activity and keep your streak alive.',
+  },
+  {
+    symbol: '📋',
+    name: 'Mistakes Rundown',
+    description: 'Review exactly what you got wrong after each session to learn from errors.',
+  },
+  {
+    symbol: '↩',
+    name: 'Undo',
+    description: 'Made a misclick? Undo your last answer and try again.',
+  },
+  {
+    symbol: '🎹',
+    name: 'Multiple Instruments',
+    description: 'Train with piano, guitar, triangle, sine, and sawtooth tones.',
+  },
 ]
 
 const steps = [
   { n: '01', title: 'Sign up', desc: 'Create a free account in seconds. No credit card, no catch.' },
-  { n: '02', title: 'Choose an exercise', desc: 'Pick from intervals, chords, melody, or rhythm at any difficulty.' },
-  { n: '03', title: 'Track progress', desc: 'See accuracy trends, maintain your daily streak, and level up.' },
+  { n: '02', title: 'Choose an exercise', desc: 'Pick from intervals, chords, melody, rhythm, or vocal pitch at any difficulty.' },
+  { n: '03', title: 'Track progress', desc: 'Earn XP, see accuracy heat maps, review mistakes, and level up.' },
 ]
 
 const fadeUp = {
@@ -281,7 +320,7 @@ export function Landing() {
               letterSpacing: '-0.01em',
               margin: '0 0 12px',
             }}>
-              Five disciplines. One app.
+              Six disciplines. One app.
             </h2>
             <p style={{
               fontFamily: 'var(--font-body)',
@@ -293,9 +332,9 @@ export function Landing() {
             </p>
           </motion.div>
 
-          <div style={{
+          <div className="disciplines-grid" style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+            gridTemplateColumns: 'repeat(3, 1fr)',
             gap: '1px',
             background: 'var(--border)',
             border: '1px solid var(--border)',
@@ -363,6 +402,127 @@ export function Landing() {
                     {f.description}
                   </p>
                 </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* ── Highlights ───────────────────────────────────── */}
+      <div style={{ padding: '80px 24px', background: 'var(--bg)' }}>
+        <div style={{ maxWidth: '960px', margin: '0 auto' }}>
+          <motion.div
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            style={{ textAlign: 'center', marginBottom: '56px' }}
+          >
+            <h2 style={{
+              fontFamily: 'var(--font-display)',
+              fontSize: 'clamp(32px, 4vw, 52px)',
+              fontWeight: 600,
+              color: 'var(--text)',
+              letterSpacing: '-0.01em',
+              margin: '0 0 12px',
+            }}>
+              More than just exercises.
+            </h2>
+            <p style={{
+              fontFamily: 'var(--font-body)',
+              fontSize: '13px',
+              color: 'var(--text-muted)',
+              letterSpacing: '0.03em',
+            }}>
+              Tools that make your practice smarter and more rewarding.
+            </p>
+          </motion.div>
+
+          <div className="highlights-grid" style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(3, 1fr)',
+            gap: '16px',
+          }}>
+            {highlights.map((h, i) => (
+              <motion.div
+                key={h.name}
+                variants={fadeUp}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: i * 0.08 }}
+                className="highlight-card"
+                style={{
+                  position: 'relative',
+                  background: 'var(--bg-surface)',
+                  border: '1px solid var(--border)',
+                  borderRadius: 'var(--radius-lg)',
+                  padding: '32px 28px 28px',
+                  overflow: 'hidden',
+                  transition: 'transform 0.25s, border-color 0.25s, box-shadow 0.25s',
+                  cursor: 'default',
+                }}
+                onMouseEnter={e => {
+                  const el = e.currentTarget as HTMLDivElement
+                  el.style.borderColor = 'var(--accent)'
+                  el.style.transform = 'translateY(-4px)'
+                  el.style.boxShadow = '0 8px 32px rgba(212,146,58,0.12)'
+                }}
+                onMouseLeave={e => {
+                  const el = e.currentTarget as HTMLDivElement
+                  el.style.borderColor = 'var(--border)'
+                  el.style.transform = 'translateY(0)'
+                  el.style.boxShadow = 'none'
+                }}
+              >
+                {/* Top accent line */}
+                <div style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: '28px',
+                  right: '28px',
+                  height: '2px',
+                  background: 'linear-gradient(90deg, var(--accent), transparent)',
+                  opacity: 0.4,
+                }} />
+
+                {/* Icon with glow background */}
+                <div style={{
+                  width: '48px',
+                  height: '48px',
+                  borderRadius: '12px',
+                  background: 'rgba(212,146,58,0.08)',
+                  border: '1px solid rgba(212,146,58,0.15)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '22px',
+                  marginBottom: '20px',
+                }}>
+                  {h.symbol}
+                </div>
+
+                <div style={{
+                  fontFamily: 'var(--font-display)',
+                  fontSize: '18px',
+                  fontWeight: 600,
+                  color: 'var(--text)',
+                  marginBottom: '8px',
+                  letterSpacing: '-0.01em',
+                }}>
+                  {h.name}
+                </div>
+                <p style={{
+                  fontFamily: 'var(--font-body)',
+                  fontSize: '12px',
+                  color: 'var(--text-muted)',
+                  lineHeight: 1.8,
+                  margin: 0,
+                  letterSpacing: '0.01em',
+                }}>
+                  {h.description}
+                </p>
               </motion.div>
             ))}
           </div>
