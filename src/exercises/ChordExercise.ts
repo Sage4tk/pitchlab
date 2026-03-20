@@ -9,7 +9,7 @@ export interface ChordQuestion {
   quality: string
 }
 
-const CHORDS: Record<string, number[]> = {
+export const CHORDS: Record<string, number[]> = {
   Major: [0, 4, 7],
   Minor: [0, 3, 7],
   Diminished: [0, 3, 6],

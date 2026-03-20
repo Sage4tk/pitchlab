@@ -20,14 +20,14 @@ const DIATONIC_CHORDS: Record<string, number[]> = {
   'vii\u00B0': [11, 14, 17],
 }
 
-const EASY_PROGRESSIONS = [
+export const EASY_PROGRESSIONS = [
   ['I', 'IV', 'V', 'I'],
   ['I', 'V', 'vi', 'IV'],
   ['I', 'vi', 'IV', 'V'],
   ['I', 'V', 'IV', 'I'],
 ]
 
-const MEDIUM_PROGRESSIONS = [
+export const MEDIUM_PROGRESSIONS = [
   ['I', 'IV', 'V', 'I'],
   ['I', 'V', 'vi', 'IV'],
   ['I', 'vi', 'IV', 'V'],
@@ -36,7 +36,7 @@ const MEDIUM_PROGRESSIONS = [
   ['ii', 'V', 'I'],
 ]
 
-const HARD_PROGRESSIONS = [
+export const HARD_PROGRESSIONS = [
   ['I', 'V', 'vi', 'IV'],
   ['I', 'vi', 'ii', 'V'],
   ['vi', 'IV', 'I', 'V'],
@@ -53,13 +53,13 @@ function getPool(difficulty: 1 | 2 | 3): string[][] {
   return HARD_PROGRESSIONS
 }
 
-function buildChordNotes(key: string, roman: string): string[] {
+export function buildChordNotes(key: string, roman: string): string[] {
   const intervals = DIATONIC_CHORDS[roman]
   if (!intervals) throw new Error(`Unknown chord: ${roman}`)
   return intervals.map((s) => applyInterval(key, s))
 }
 
-function toLabel(progression: string[]): string {
+export function toLabel(progression: string[]): string {
   return progression.join(' \u2013 ')
 }
 

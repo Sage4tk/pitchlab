@@ -18,6 +18,9 @@ const ChordProgression = lazy(() => import('@/pages/exercises/ChordProgression')
 const PitchMatch = lazy(() => import('@/pages/exercises/PitchMatch').then(m => ({ default: m.PitchMatch })))
 const Progress = lazy(() => import('@/pages/Progress').then(m => ({ default: m.Progress })))
 const Settings = lazy(() => import('@/pages/Settings').then(m => ({ default: m.Settings })))
+const Courses = lazy(() => import('@/pages/Courses').then(m => ({ default: m.Courses })))
+const CourseDetail = lazy(() => import('@/pages/CourseDetail').then(m => ({ default: m.CourseDetail })))
+const CourseLesson = lazy(() => import('@/pages/CourseLesson').then(m => ({ default: m.CourseLesson })))
 
 const PageSpinner = () => (
   <Center minH="100vh" bg="var(--bg)" style={{ background: 'var(--bg)' }}>
@@ -106,6 +109,30 @@ export default function App() {
           element={
             <ProtectedRoute>
               <Settings />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/courses"
+          element={
+            <ProtectedRoute>
+              <Courses />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/courses/:courseId"
+          element={
+            <ProtectedRoute>
+              <CourseDetail />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/courses/:courseId/:lessonId"
+          element={
+            <ProtectedRoute>
+              <CourseLesson />
             </ProtectedRoute>
           }
         />

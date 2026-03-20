@@ -560,9 +560,10 @@ interface FeedbackRowProps {
   onNext: () => void
   isLastRound?: boolean
   xpEarned?: number
+  tip?: string
 }
 
-export function FeedbackRow({ isCorrect, message, onNext, isLastRound, xpEarned }: FeedbackRowProps) {
+export function FeedbackRow({ isCorrect, message, onNext, isLastRound, xpEarned, tip }: FeedbackRowProps) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
       <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: '12px' }}>
@@ -594,6 +595,22 @@ export function FeedbackRow({ isCorrect, message, onNext, isLastRound, xpEarned 
           </div>
         )}
       </div>
+      {tip && !isCorrect && (
+        <div style={{
+          fontFamily: 'var(--font-body)',
+          fontSize: '11px',
+          lineHeight: 1.6,
+          color: 'var(--text-muted)',
+          background: 'var(--bg-surface-2)',
+          border: '1px solid var(--border)',
+          borderRadius: 'var(--radius)',
+          padding: '10px 14px',
+          letterSpacing: '0.02em',
+        }}>
+          <span style={{ color: 'var(--accent)', fontWeight: 600, marginRight: '6px' }}>Tip:</span>
+          {tip}
+        </div>
+      )}
       <button
         onClick={onNext}
         style={{

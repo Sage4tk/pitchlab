@@ -7,6 +7,7 @@ const PUBLIC_PATHS = ['/', '/login', '/signup', '/forgot-password']
 
 const navLinks = [
   { to: '/dashboard', label: 'Dashboard' },
+  { to: '/courses', label: 'Courses' },
   { to: '/progress', label: 'Progress' },
   { to: '/settings', label: 'Settings' },
 ]

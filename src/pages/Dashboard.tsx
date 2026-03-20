@@ -8,6 +8,8 @@ import { getStreak } from '@/db/streaks'
 import { ProgressRing } from '@/components/ProgressRing'
 import type { Category } from '@/exercises/types'
 import { motion } from 'framer-motion'
+import { useCourseStore } from '@/store/useCourseStore'
+import { COURSES, getCourse } from '@/courses/data'
 
 /* ── Daily Missions ──────────────────────────────────────────── */
 
@@ -212,6 +214,9 @@ export function Dashboard() {
             </div>
           )}
         </motion.div>
+
+        {/* Continue Course Widget */}
+        <CourseWidget fadeUp={fadeUp} />
 
         {/* Daily Missions */}
         <motion.div
@@ -718,5 +723,105 @@ export function Dashboard() {
         </motion.div>
       </div>
     </div>
+  )
+}
+
+function CourseWidget({ fadeUp }: { fadeUp: { hidden: { opacity: number; y: number }; visible: { opacity: number; y: number } } }) {
+  const courseProgress = useCourseStore((s) => s.progress)
+
+  // Find active (in-progress, not completed) course
+  const activeCourse = COURSES.find((c) => {
+    const cp = courseProgress[c.id]
+    return cp && !cp.completedAt
+  })
+
+  if (!activeCourse) {
+    // No active course — show CTA
+    return (
+      <motion.div variants={fadeUp} initial="hidden" animate="visible" transition={{ duration: 0.5, delay: 0.06 }} style={{ marginBottom: '24px' }}>
+        <Link to="/courses" style={{ textDecoration: 'none' }}>
+          <div
+            style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px',
+              padding: '18px 22px', background: 'var(--bg-surface)', border: '1px solid var(--border)',
+              borderRadius: 'var(--radius-md)', transition: 'border-color 0.15s', cursor: 'pointer',
+            }}
+            onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.borderColor = 'var(--accent)' }}
+            onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.borderColor = 'var(--border)' }}
+          >
+            <div>
+              <div style={{ fontFamily: 'var(--font-display)', fontSize: '17px', fontWeight: 600, color: 'var(--text)', marginBottom: '3px' }}>
+                Start a Course
+              </div>
+              <div style={{ fontFamily: 'var(--font-body)', fontSize: '11px', color: 'var(--text-muted)', letterSpacing: '0.02em' }}>
+                Structured lessons to build your ear step by step
+              </div>
+            </div>
+            <span style={{
+              fontFamily: 'var(--font-body)', fontSize: '11px', fontWeight: 600,
+              letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--accent)',
+              whiteSpace: 'nowrap',
+            }}>
+              Browse →
+            </span>
+          </div>
+        </Link>
+      </motion.div>
+    )
+  }
+
+  const cp = courseProgress[activeCourse.id]!
+  const course = getCourse(activeCourse.id)!
+  const completedCount = cp.completedLessons.length
+  const totalLessons = course.lessons.length
+  const pct = Math.round((completedCount / totalLessons) * 100)
+  const currentLesson = course.lessons.find((l) => !cp.completedLessons.includes(l.id))
+
+  return (
+    <motion.div variants={fadeUp} initial="hidden" animate="visible" transition={{ duration: 0.5, delay: 0.06 }} style={{ marginBottom: '24px' }}>
+      <Link to={currentLesson ? `/courses/${course.id}/${currentLesson.id}` : `/courses/${course.id}`} style={{ textDecoration: 'none' }}>
+        <div
+          style={{
+            padding: '18px 22px', background: 'var(--bg-surface)', border: '1px solid var(--border)',
+            borderRadius: 'var(--radius-md)', transition: 'border-color 0.15s', cursor: 'pointer',
+          }}
+          onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.borderColor = 'var(--accent)' }}
+          onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.borderColor = 'var(--border)' }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', marginBottom: '12px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <span style={{ fontFamily: 'var(--font-display)', fontSize: '24px', color: 'var(--accent)', lineHeight: 1, opacity: 0.85 }}>
+                {course.symbol}
+              </span>
+              <div>
+                <div style={{ fontFamily: 'var(--font-body)', fontSize: '13px', fontWeight: 500, color: 'var(--text)' }}>
+                  {course.title}
+                </div>
+                {currentLesson && (
+                  <div style={{ fontFamily: 'var(--font-body)', fontSize: '10px', color: 'var(--text-muted)', letterSpacing: '0.04em', marginTop: '2px' }}>
+                    Next: {currentLesson.title}
+                  </div>
+                )}
+              </div>
+            </div>
+            <span style={{
+              fontFamily: 'var(--font-body)', fontSize: '11px', fontWeight: 600,
+              letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--accent)',
+              whiteSpace: 'nowrap',
+            }}>
+              Continue →
+            </span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div style={{ flex: 1, height: '4px', background: 'var(--bg-highlight)', borderRadius: '2px', overflow: 'hidden' }}>
+              <div style={{ height: '100%', width: `${pct}%`, background: 'var(--accent)', borderRadius: '2px', transition: 'width 0.3s ease' }} />
+            </div>
+            <span style={{ fontFamily: 'var(--font-body)', fontSize: '10px', color: 'var(--text-faint)', letterSpacing: '0.04em' }}>
+              {completedCount}/{totalLessons}
+            </span>
+          </div>
+        </div>
+      </Link>
+    </motion.div>
   )
 }

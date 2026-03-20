@@ -11,7 +11,7 @@ export interface IntervalQuestion {
   ascending: boolean
 }
 
-const ALL_INTERVALS = [
+export const ALL_INTERVALS = [
   { semitones: 0, label: 'Unison' },
   { semitones: 1, label: 'm2' },
   { semitones: 2, label: 'M2' },

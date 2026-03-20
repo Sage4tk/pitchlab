@@ -1,0 +1,56 @@
+import type { CourseDefinition } from '../types'
+
+export const chordEarTraining: CourseDefinition = {
+  id: 'chord-ear-training',
+  title: 'Chord Ear Training',
+  description: 'Learn to identify chord qualities by ear, from basic triads to seventh chords.',
+  symbol: '♫',
+  category: 'chord',
+  lessons: [
+    {
+      id: 'ce-1',
+      title: 'Major vs Minor',
+      description: 'The fundamental distinction — happy versus sad.',
+      rounds: 5,
+      difficulty: 1,
+      exerciseType: 'chord',
+      pool: ['Major', 'Minor'],
+    },
+    {
+      id: 'ce-2',
+      title: 'Adding Diminished',
+      description: 'The tense, unstable diminished triad enters the picture.',
+      rounds: 5,
+      difficulty: 1,
+      exerciseType: 'chord',
+      pool: ['Major', 'Minor', 'Diminished'],
+    },
+    {
+      id: 'ce-3',
+      title: 'Augmented & Suspended',
+      description: 'Augmented, sus2, and sus4 chords round out the triads.',
+      rounds: 5,
+      difficulty: 2,
+      exerciseType: 'chord',
+      pool: ['Major', 'Minor', 'Diminished', 'Augmented', 'Sus2', 'Sus4'],
+    },
+    {
+      id: 'ce-4',
+      title: 'Seventh Chords',
+      description: 'Dominant 7th and major 7th add a new layer of color.',
+      rounds: 5,
+      difficulty: 2,
+      exerciseType: 'chord',
+      pool: ['Major', 'Minor', 'Diminished', 'Augmented', 'Sus2', 'Sus4', 'Dom7', 'Maj7'],
+    },
+    {
+      id: 'ce-5',
+      title: 'All Chord Types',
+      description: 'Every chord quality in one session — the full test.',
+      rounds: 10,
+      difficulty: 3,
+      exerciseType: 'chord',
+      pool: null,
+    },
+  ],
+}

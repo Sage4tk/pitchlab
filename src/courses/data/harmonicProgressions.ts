@@ -1,0 +1,56 @@
+import type { CourseDefinition } from '../types'
+
+export const harmonicProgressions: CourseDefinition = {
+  id: 'harmonic-progressions',
+  title: 'Harmonic Progressions',
+  description: 'Learn to hear chord movement — from the classic I-IV-V-I to complex diatonic sequences.',
+  symbol: '♮',
+  category: 'progression',
+  lessons: [
+    {
+      id: 'hp-1',
+      title: 'The Classic Cadence',
+      description: 'I – IV – V – I: the foundation of Western harmony.',
+      rounds: 5,
+      difficulty: 1,
+      exerciseType: 'progression',
+      pool: ['I – IV – V – I'],
+    },
+    {
+      id: 'hp-2',
+      title: 'Pop Progressions',
+      description: 'Add I – V – vi – IV and I – vi – IV – V to the mix.',
+      rounds: 5,
+      difficulty: 1,
+      exerciseType: 'progression',
+      pool: ['I – IV – V – I', 'I – V – vi – IV', 'I – vi – IV – V', 'I – V – IV – I'],
+    },
+    {
+      id: 'hp-3',
+      title: 'Minor & Secondary',
+      description: 'Progressions featuring ii and vi as starting chords.',
+      rounds: 5,
+      difficulty: 2,
+      exerciseType: 'progression',
+      pool: ['I – IV – V – I', 'I – V – vi – IV', 'I – vi – IV – V', 'I – vi – ii – V', 'vi – IV – I – V', 'ii – V – I'],
+    },
+    {
+      id: 'hp-4',
+      title: 'Advanced Diatonic',
+      description: 'iii and vii\u00B0 enter — full diatonic vocabulary.',
+      rounds: 5,
+      difficulty: 3,
+      exerciseType: 'progression',
+      pool: null,
+    },
+    {
+      id: 'hp-5',
+      title: 'Full Progression Mastery',
+      description: 'All progressions, no constraints — prove your ears.',
+      rounds: 10,
+      difficulty: 3,
+      exerciseType: 'progression',
+      pool: null,
+    },
+  ],
+}
