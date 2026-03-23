@@ -19,6 +19,13 @@ interface UseExerciseOptions<TQuestion, TAnswer> {
   replayQuestion?: (q: TQuestion) => void
 }
 
+interface SessionStats {
+  sessionXP: number
+  avgMs: number
+  fastestMs: number
+  slowestMs: number
+}
+
 interface UseExerciseResult<TQuestion, TAnswer> {
   phase: Phase
   question: TQuestion | null
@@ -29,6 +36,7 @@ interface UseExerciseResult<TQuestion, TAnswer> {
   totalRounds: number
   score: number
   wrongQuestions: TQuestion[]
+  sessionStats: SessionStats
   startSession: (difficulty: 1 | 2 | 3, rounds: 3 | 5 | 10) => void
   play: () => void
   submit: (answer: TAnswer) => void
@@ -56,6 +64,8 @@ export function useExercise<TQuestion, TAnswer>({
   const [currentRound, setCurrentRound] = useState(0)
   const [score, setScore] = useState(0)
   const [wrongQuestions, setWrongQuestions] = useState<TQuestion[]>([])
+  const [sessionXP, setSessionXP] = useState(0)
+  const answerTimesRef = useRef<number[]>([])
 
   // Refs so callbacks always see current values without stale closure issues
   const startTimeRef = useRef<number>(0)
@@ -80,6 +90,8 @@ export function useExercise<TQuestion, TAnswer>({
     currentRoundRef.current = 0
     setScore(0)
     setWrongQuestions([])
+    setSessionXP(0)
+    answerTimesRef.current = []
     reviewQueueRef.current = []
     isReviewModeRef.current = false
     setQuestion(null)
@@ -134,8 +146,11 @@ export function useExercise<TQuestion, TAnswer>({
       }
       setPhase('feedback')
 
+      answerTimesRef.current.push(answerMs)
+
       const xp = correct ? calcXP(difficulty, answerMs) : 0
       setXpEarned(xp)
+      setSessionXP((prev) => prev + xp)
       if (xp > 0) {
         useXPStore.getState().addXP(xp)
         if (user) void addXPToFirestore(user.uid, xp)
@@ -192,9 +207,19 @@ export function useExercise<TQuestion, TAnswer>({
     currentRoundRef.current = 0
     setScore(0)
     setWrongQuestions([])
+    setSessionXP(0)
+    answerTimesRef.current = []
     reviewQueueRef.current = []
     isReviewModeRef.current = false
   }, [])
+
+  const times = answerTimesRef.current
+  const sessionStats: SessionStats = {
+    sessionXP,
+    avgMs: times.length > 0 ? Math.round(times.reduce((a, b) => a + b, 0) / times.length) : 0,
+    fastestMs: times.length > 0 ? Math.min(...times) : 0,
+    slowestMs: times.length > 0 ? Math.max(...times) : 0,
+  }
 
   return {
     phase,
@@ -206,6 +231,7 @@ export function useExercise<TQuestion, TAnswer>({
     totalRounds,
     score,
     wrongQuestions,
+    sessionStats,
     startSession,
     play,
     submit,

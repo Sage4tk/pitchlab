@@ -19,6 +19,7 @@ export function PitchMatch() {
   const {
     phase, question, isCorrect, xpEarned,
     difficulty, currentRound, totalRounds, score,
+    sessionStats,
     startSession, play, submit, next, reset,
     wrongQuestions, startReview,
   } = useExercise<PitchMatchQuestion, string>({
@@ -107,6 +108,7 @@ export function PitchMatch() {
       title="Pitch Match" symbol="𝄢"
       phase={phase} difficulty={difficulty}
       currentRound={currentRound} totalRounds={totalRounds} score={score}
+      sessionStats={sessionStats}
       onStartSession={startSession} onReset={reset}
       onReview={() => startReview(wrongQuestions)} wrongCount={wrongQuestions.length}
     >

@@ -16,6 +16,7 @@ export function Rhythm() {
   const {
     phase, question, isCorrect, xpEarned,
     difficulty, currentRound, totalRounds, score,
+    sessionStats,
     startSession, play, submit, next, reset,
     wrongQuestions, startReview,
   } = useExercise<RhythmQuestion, boolean[]>({ category: 'rhythm', generateQuestion: generate, checkAnswer: check, replayQuestion })
@@ -30,6 +31,7 @@ export function Rhythm() {
       title="Rhythm" symbol="♬"
       phase={phase} difficulty={difficulty}
       currentRound={currentRound} totalRounds={totalRounds} score={score}
+      sessionStats={sessionStats}
       onStartSession={startSession} onReset={reset}
       onReview={() => startReview(wrongQuestions)} wrongCount={wrongQuestions.length}
     >

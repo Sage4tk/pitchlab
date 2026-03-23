@@ -10,6 +10,7 @@ import { PlayButton } from '@/components/PlayButton'
 import { playInterval, setSoundPreset as setAudioPreset, isPianoReady, onPianoReady } from '@/audio/AudioEngine'
 import type { SoundPreset } from '@/audio/AudioEngine'
 import { useExerciseStore } from '@/store/useExerciseStore'
+import { useXPStore } from '@/store/useXPStore'
 import { motion, AnimatePresence } from 'framer-motion'
 
 export function Interval() {
@@ -21,6 +22,7 @@ export function Interval() {
   const {
     phase, question, isCorrect, xpEarned,
     difficulty, currentRound, totalRounds, score,
+    sessionStats,
     startSession, play, submit, next, reset,
     wrongQuestions, startReview,
   } = useExercise<IntervalQuestion, string>({ category: 'interval', generateQuestion: generate, checkAnswer: check, getItemLabel, replayQuestion })
@@ -41,6 +43,7 @@ export function Interval() {
       title="Intervals" symbol="♩"
       phase={phase} difficulty={difficulty}
       currentRound={currentRound} totalRounds={totalRounds} score={score}
+      sessionStats={sessionStats}
       onStartSession={startSession} onReset={reset}
       onReview={() => startReview(wrongQuestions)} wrongCount={wrongQuestions.length}
     >
@@ -81,6 +84,13 @@ export function Interval() {
 
 /* ── Shared within exercise pages ───────────────────────────── */
 
+interface SessionStats {
+  sessionXP: number
+  avgMs: number
+  fastestMs: number
+  slowestMs: number
+}
+
 interface ShellProps {
   title: string
   symbol: string
@@ -89,6 +99,7 @@ interface ShellProps {
   currentRound: number
   totalRounds: number
   score: number
+  sessionStats?: SessionStats
   onStartSession: (difficulty: 1 | 2 | 3, rounds: 3 | 5 | 10) => void
   onReset: () => void
   children: React.ReactNode
@@ -107,7 +118,7 @@ const INSTRUMENT_OPTIONS: { value: SoundPreset; label: string }[] = [
 ]
 
 export function ExerciseShell({
-  title, symbol, phase, difficulty, currentRound, totalRounds, score, onStartSession, onReset, children, onReview, wrongCount,
+  title, symbol, phase, difficulty, currentRound, totalRounds, score, sessionStats, onStartSession, onReset, children, onReview, wrongCount,
 }: ShellProps) {
   const [selDiff, setSelDiff] = useState<1 | 2 | 3>(1)
   const [selRounds, setSelRounds] = useState<3 | 5 | 10>(5)
@@ -288,7 +299,7 @@ export function ExerciseShell({
       <PageWrap>
         <Card>
           <CardHeader title={title} symbol={symbol} />
-          <div style={{ padding: '40px 28px', display: 'flex', flexDirection: 'column', gap: '28px', alignItems: 'center', textAlign: 'center' }}>
+          <div style={{ padding: '40px 28px', display: 'flex', flexDirection: 'column', gap: '24px', alignItems: 'center', textAlign: 'center' }}>
 
             {/* Score */}
             <div>
@@ -326,7 +337,7 @@ export function ExerciseShell({
             </div>
 
             {/* Round dots */}
-            <div style={{ display: 'flex', gap: '6px', justifyContent: 'center' }}>
+            <div style={{ display: 'flex', gap: '6px', justifyContent: 'center', flexWrap: 'wrap' }}>
               {Array.from({ length: totalRounds }).map((_, i) => (
                 <div key={i} style={{
                   width: '10px',
@@ -339,6 +350,9 @@ export function ExerciseShell({
                 }} />
               ))}
             </div>
+
+            {/* Session Stats */}
+            {sessionStats && <SessionSummary stats={sessionStats} />}
 
             {/* Actions */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', width: '100%' }}>
@@ -484,6 +498,108 @@ export function ExerciseShell({
         </div>
       </Card>
     </PageWrap>
+  )
+}
+
+/* ── Session Summary ───────────────────────────────────────── */
+
+function formatTime(ms: number): string {
+  if (ms < 1000) return `${ms}ms`
+  return `${(ms / 1000).toFixed(1)}s`
+}
+
+function SessionSummary({ stats }: { stats: SessionStats }) {
+  const { levelInfo } = useXPStore()
+
+  return (
+    <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      {/* Stat tiles */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
+        <StatTile label="XP Earned" value={`+${stats.sessionXP}`} accent />
+        <StatTile label="Avg Time" value={formatTime(stats.avgMs)} />
+        <StatTile label="Fastest" value={formatTime(stats.fastestMs)} />
+      </div>
+
+      {/* Level progress */}
+      <div style={{
+        background: 'var(--bg-surface-2)',
+        border: '1px solid var(--border)',
+        borderRadius: 'var(--radius)',
+        padding: '14px 16px',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '8px',
+      }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+          <span style={{
+            fontFamily: 'var(--font-body)',
+            fontSize: '10px',
+            letterSpacing: '0.1em',
+            textTransform: 'uppercase',
+            color: 'var(--text-muted)',
+          }}>
+            Level {levelInfo.level} · {levelInfo.title}
+          </span>
+          <span style={{
+            fontFamily: 'var(--font-body)',
+            fontSize: '10px',
+            color: 'var(--text-muted)',
+            letterSpacing: '0.04em',
+          }}>
+            {levelInfo.currentXP} / {levelInfo.xpForLevel} XP
+          </span>
+        </div>
+        <div style={{
+          height: '6px',
+          background: 'var(--bg-highlight)',
+          borderRadius: '3px',
+          overflow: 'hidden',
+        }}>
+          <div style={{
+            height: '100%',
+            width: `${levelInfo.progressPct}%`,
+            background: 'var(--accent)',
+            borderRadius: '3px',
+            transition: 'width 0.5s ease',
+            boxShadow: '0 0 8px var(--accent-glow)',
+          }} />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function StatTile({ label, value, accent }: { label: string; value: string; accent?: boolean }) {
+  return (
+    <div style={{
+      background: 'var(--bg-surface-2)',
+      border: '1px solid var(--border)',
+      borderRadius: 'var(--radius)',
+      padding: '12px 8px',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '4px',
+      alignItems: 'center',
+    }}>
+      <span style={{
+        fontFamily: 'var(--font-body)',
+        fontSize: '10px',
+        letterSpacing: '0.1em',
+        textTransform: 'uppercase',
+        color: 'var(--text-muted)',
+      }}>
+        {label}
+      </span>
+      <span style={{
+        fontFamily: 'var(--font-display)',
+        fontSize: '20px',
+        fontWeight: 600,
+        color: accent ? 'var(--accent)' : 'var(--text)',
+        letterSpacing: '-0.01em',
+      }}>
+        {value}
+      </span>
+    </div>
   )
 }
 

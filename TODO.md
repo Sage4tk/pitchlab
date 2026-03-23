@@ -2,7 +2,7 @@
 
 ## High Impact — Core Experience
 - [ ] **Adaptive Difficulty** — Auto-scale difficulty based on recent accuracy (bump up at >80%, down at <50%) instead of requiring manual selection
-- [ ] **Session Summary Screen** — After finishing a set, show recap: accuracy %, XP earned, streak status, weakest items, "practice weak spots" CTA
+- [x] **Session Summary Screen** — After finishing a set, show recap: accuracy %, XP earned, streak status, weakest items, "practice weak spots" CTA
 - [ ] **Richer Feedback** — Explain *why* an answer is right/wrong (e.g., "Minor 3rd = 3 semitones, darker quality than Major 3rd")
 - [ ] **Chord Inversions** — Extend chord exercises to include 1st/2nd inversions, not just root position
 

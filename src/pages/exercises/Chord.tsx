@@ -18,6 +18,7 @@ export function Chord() {
   const {
     phase, question, isCorrect, xpEarned,
     difficulty, currentRound, totalRounds, score,
+    sessionStats,
     startSession, play, submit, next, reset,
     wrongQuestions, startReview,
   } = useExercise<ChordQuestion, string>({ category: 'chord', generateQuestion: generate, checkAnswer: check, getItemLabel, replayQuestion })
@@ -38,6 +39,7 @@ export function Chord() {
       title="Chords" symbol="♫"
       phase={phase} difficulty={difficulty}
       currentRound={currentRound} totalRounds={totalRounds} score={score}
+      sessionStats={sessionStats}
       onStartSession={startSession} onReset={reset}
       onReview={() => startReview(wrongQuestions)} wrongCount={wrongQuestions.length}
     >

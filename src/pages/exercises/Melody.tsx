@@ -34,6 +34,7 @@ export function Melody() {
   const {
     phase, question, isCorrect, xpEarned,
     difficulty, currentRound, totalRounds, score,
+    sessionStats,
     startSession, play, submit, next, reset,
     wrongQuestions, startReview,
   } = useExercise<MelodyQuestion, string[]>({ category: 'melody', generateQuestion: generate, checkAnswer: check, replayQuestion })
@@ -110,6 +111,7 @@ export function Melody() {
       title="Melody" symbol="𝄞"
       phase={phase} difficulty={difficulty}
       currentRound={currentRound} totalRounds={totalRounds} score={score}
+      sessionStats={sessionStats}
       onStartSession={startSession} onReset={reset}
       onReview={() => startReview(wrongQuestions)} wrongCount={wrongQuestions.length}
     >
