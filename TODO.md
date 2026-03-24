@@ -23,6 +23,25 @@
 - [ ] **Keyboard Shortcuts Everywhere** — Add number-key shortcuts for interval/chord answer buttons (melody already has them)
 - [ ] **Offline Mode** — Service worker + IndexedDB for offline practice, sync on reconnect
 
+## Security (Pre-Ship)
+
+### Critical
+- [ ] **Firestore Security Rules** — Write and deploy `firestore.rules`; deny all by default, allow users to read/write only their own `users/{uid}/...` subcollections
+- [ ] **Confirm `.env.local` not in git** — Verify Firebase credentials have never been committed to git history
+
+### High
+- [ ] **Fix npm vulnerabilities** — Run `npm audit fix` to patch `flatted` (prototype pollution/DoS) and `minimatch` (ReDoS)
+- [ ] **Content Security Policy** — Add CSP + `X-Frame-Options` headers in `firebase.json`
+
+### Medium
+- [ ] **Generic auth error messages** — Map Firebase error strings to generic messages in `Login.tsx:21`, `Signup.tsx:23`, `ForgotPassword.tsx:18` to prevent account enumeration
+- [ ] **Auth rate limiting** — Add client-side throttle on `signIn`/`signUp`/`resetPassword` in `firebaseAuth.ts`
+- [ ] **Validate route params** — Sanitize `courseId`/`lessonId` from `useParams` in `CourseDetail.tsx` and `CourseLesson.tsx`
+- [ ] **Remove console.error from prod** — Gate error logging behind `NODE_ENV === 'development'` in `Dashboard.tsx:102`, `Progress.tsx:53`
+
+### Low
+- [ ] **SRI on Google Fonts** — Add `integrity` attribute to font stylesheet in `index.html`
+
 ## Data & Trust
 - [ ] **Better Long-Term Analytics** — Weekly/monthly accuracy trends, personal bests, response time improvements
 - [ ] **Data Export** — Let users download progress as CSV/JSON
