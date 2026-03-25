@@ -38,10 +38,11 @@ const SYMBOLS: Record<Category, string> = {
 export function Progress() {
   const { user } = useSession()
   const getAccuracy = useProgressStore((s) => s.getAccuracy)
+  const practiceDays = useProgressStore((s) => s.practiceDays)
+  const setPracticeDays = useProgressStore((s) => s.setPracticeDays)
   const [streak, setStreak] = useState<{ current: number; longest: number } | null>(null)
   const [selectedCategory, setSelectedCategory] = useState<Category>('interval')
   const [lineData, setLineData] = useState<LinePoint[]>([])
-  const [practiceDays, setPracticeDays] = useState<Record<string, number>>({})
 
   const radarData = CATEGORIES.map((c) => ({
     category: c.charAt(0).toUpperCase() + c.slice(1),
@@ -51,8 +52,11 @@ export function Progress() {
   useEffect(() => {
     if (!user) return
     getStreak(user.uid).then(setStreak).catch(console.error)
-    getPracticeDays(user.uid).then(setPracticeDays).catch(console.error)
-  }, [user])
+    // Only fetch practice days if not already cached in store
+    if (!practiceDays) {
+      getPracticeDays(user.uid).then(setPracticeDays).catch(console.error)
+    }
+  }, [user, practiceDays, setPracticeDays])
 
   useEffect(() => {
     if (!user) return
@@ -157,7 +161,7 @@ export function Progress() {
             Practice History
           </div>
           <div data-calendar style={{ position: 'relative' }}>
-            <StreakCalendar practiceDays={practiceDays} />
+            <StreakCalendar practiceDays={practiceDays ?? {}} />
           </div>
         </div>
 

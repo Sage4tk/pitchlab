@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
 import { onAuthStateChanged, type User } from 'firebase/auth'
 import { auth } from '@/lib/firebase'
 import { getAllRecentAttempts } from '@/db/progress'
@@ -11,7 +11,9 @@ interface Session {
   loading: boolean
 }
 
-export function useSession(): Session {
+const SessionContext = createContext<Session>({ user: null, loading: true })
+
+export function SessionProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   const loadAttempts = useProgressStore((s) => s.loadAttempts)
@@ -39,5 +41,9 @@ export function useSession(): Session {
     return unsubscribe
   }, [loadAttempts, loadXP])
 
-  return { user, loading }
+  return <SessionContext value={{ user, loading }}>{children}</SessionContext>
+}
+
+export function useSession(): Session {
+  return useContext(SessionContext)
 }
