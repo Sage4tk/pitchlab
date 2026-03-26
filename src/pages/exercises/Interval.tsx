@@ -10,6 +10,7 @@ import { PlayButton } from '@/components/PlayButton'
 import { playInterval, setSoundPreset as setAudioPreset, isPianoReady, onPianoReady } from '@/audio/AudioEngine'
 import type { SoundPreset } from '@/audio/AudioEngine'
 import { useExerciseStore } from '@/store/useExerciseStore'
+import { INTERVAL_TIPS } from '@/data/feedbackTips'
 import { useXPStore } from '@/store/useXPStore'
 import { motion, AnimatePresence } from 'framer-motion'
 
@@ -74,6 +75,7 @@ export function Interval() {
               onNext={next}
               isLastRound={currentRound >= totalRounds}
               xpEarned={xpEarned}
+              tip={question ? INTERVAL_TIPS[question.label] : undefined}
             />
           </motion.div>
         )}
@@ -711,7 +713,7 @@ export function FeedbackRow({ isCorrect, message, onNext, isLastRound, xpEarned,
           </div>
         )}
       </div>
-      {tip && !isCorrect && (
+      {tip && (
         <div style={{
           fontFamily: 'var(--font-body)',
           fontSize: '11px',

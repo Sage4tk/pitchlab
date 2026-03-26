@@ -8,6 +8,7 @@ import { PlayButton } from '@/components/PlayButton'
 import { playChord } from '@/audio/AudioEngine'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ExerciseShell, FeedbackRow, ReplayButton } from '@/pages/exercises/Interval'
+import { CHORD_TIPS } from '@/data/feedbackTips'
 
 export function Chord() {
   const generate = useCallback((d: 1 | 2 | 3) => ChordExercise.generate(d), [])
@@ -70,6 +71,7 @@ export function Chord() {
               onNext={next}
               isLastRound={currentRound >= totalRounds}
               xpEarned={xpEarned}
+              tip={question ? CHORD_TIPS[question.quality] : undefined}
             />
           </motion.div>
         )}
