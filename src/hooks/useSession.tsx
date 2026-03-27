@@ -6,6 +6,7 @@ import { getXP } from '@/db/xp'
 import { useProgressStore } from '@/store/useProgressStore'
 import { useXPStore } from '@/store/useXPStore'
 import { useSpacedRepStore } from '@/store/useSpacedRepStore'
+import { useCourseStore } from '@/store/useCourseStore'
 
 interface Session {
   user: User | null
@@ -20,6 +21,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   const loadAttempts = useProgressStore((s) => s.loadAttempts)
   const loadXP = useXPStore((s) => s.loadXP)
   const resetSpacedRep = useSpacedRepStore((s) => s.reset)
+  const resetCourses = useCourseStore((s) => s.resetProgress)
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (u) => {
@@ -39,10 +41,11 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         loadAttempts([])
         loadXP(0)
         resetSpacedRep()
+        resetCourses()
       }
     })
     return unsubscribe
-  }, [loadAttempts, loadXP, resetSpacedRep])
+  }, [loadAttempts, loadXP, resetSpacedRep, resetCourses])
 
   return <SessionContext value={{ user, loading }}>{children}</SessionContext>
 }

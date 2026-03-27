@@ -11,6 +11,7 @@ interface CourseStore {
   isLessonUnlocked: (courseId: string, lessonId: string) => boolean
   isLessonCompleted: (courseId: string, lessonId: string) => boolean
   loadProgress: (userId: string) => Promise<void>
+  resetProgress: () => void
 }
 
 export const useCourseStore = create<CourseStore>()(
@@ -88,6 +89,10 @@ export const useCourseStore = create<CourseStore>()(
         if (Object.keys(data).length > 0) {
           set({ progress: data })
         }
+      },
+
+      resetProgress() {
+        set({ progress: {} })
       },
     }),
     {
