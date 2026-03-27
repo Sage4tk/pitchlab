@@ -11,6 +11,7 @@ interface SpacedRepState {
   recordResult: (category: string, item: string, correct: boolean) => void
   getWeight: (category: string, item: string) => number
   getWeights: (category: string, items: string[]) => number[]
+  reset: () => void
 }
 
 function loadFromStorage(): Record<string, ItemStats> {
@@ -58,6 +59,11 @@ export const useSpacedRepStore = create<SpacedRepState>((set, get) => ({
 
   getWeights(category, items) {
     return items.map((item) => get().getWeight(category, item))
+  },
+
+  reset() {
+    localStorage.removeItem('pitchlab-spaced-rep')
+    set({ items: {} })
   },
 }))
 
