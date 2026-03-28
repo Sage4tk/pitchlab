@@ -42,6 +42,7 @@ export function Interval() {
   return (
     <ExerciseShell
       title="Intervals" symbol="♩"
+      hint="Listen to two notes and identify the distance between them — the interval."
       phase={phase} difficulty={difficulty}
       currentRound={currentRound} totalRounds={totalRounds} score={score}
       sessionStats={sessionStats}
@@ -96,6 +97,7 @@ interface SessionStats {
 interface ShellProps {
   title: string
   symbol: string
+  hint?: string
   phase: Phase
   difficulty: 1 | 2 | 3
   currentRound: number
@@ -120,7 +122,7 @@ const INSTRUMENT_OPTIONS: { value: SoundPreset; label: string }[] = [
 ]
 
 export function ExerciseShell({
-  title, symbol, phase, difficulty, currentRound, totalRounds, score, sessionStats, onStartSession, onReset, children, onReview, wrongCount,
+  title, symbol, hint, phase, difficulty, currentRound, totalRounds, score, sessionStats, onStartSession, onReset, children, onReview, wrongCount,
 }: ShellProps) {
   const [selDiff, setSelDiff] = useState<1 | 2 | 3>(1)
   const [selRounds, setSelRounds] = useState<3 | 5 | 10>(5)
@@ -146,6 +148,21 @@ export function ExerciseShell({
       <PageWrap>
         <Card>
           <CardHeader title={title} symbol={symbol} />
+          {hint && (
+            <div style={{
+              margin: '16px 28px 0',
+              padding: '12px 16px',
+              background: 'var(--bg-surface-2)',
+              borderLeft: '3px solid var(--accent)',
+              borderRadius: '0 var(--radius) var(--radius) 0',
+              fontFamily: 'var(--font-body)',
+              fontSize: '13px',
+              color: 'var(--text-muted)',
+              lineHeight: 1.5,
+            }}>
+              {hint}
+            </div>
+          )}
           <div style={{ padding: '32px 28px', display: 'flex', flexDirection: 'column', gap: '32px' }}>
 
             {/* Difficulty */}

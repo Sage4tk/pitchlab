@@ -38,6 +38,7 @@ export function Chord() {
   return (
     <ExerciseShell
       title="Chords" symbol="♫"
+      hint="Hear a chord played at once and identify its quality — major, minor, diminished, and more."
       phase={phase} difficulty={difficulty}
       currentRound={currentRound} totalRounds={totalRounds} score={score}
       sessionStats={sessionStats}

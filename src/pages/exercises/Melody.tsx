@@ -109,6 +109,7 @@ export function Melody() {
   return (
     <ExerciseShell
       title="Melody" symbol="𝄞"
+      hint="Listen to a short melody and recreate it note by note on the keyboard."
       phase={phase} difficulty={difficulty}
       currentRound={currentRound} totalRounds={totalRounds} score={score}
       sessionStats={sessionStats}

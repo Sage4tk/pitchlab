@@ -106,6 +106,7 @@ export function PitchMatch() {
   return (
     <ExerciseShell
       title="Pitch Match" symbol="𝄢"
+      hint="Hear a target pitch and sing or hum to match it — the meter shows how close you are."
       phase={phase} difficulty={difficulty}
       currentRound={currentRound} totalRounds={totalRounds} score={score}
       sessionStats={sessionStats}

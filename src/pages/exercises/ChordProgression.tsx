@@ -44,6 +44,7 @@ export function ChordProgression() {
   return (
     <ExerciseShell
       title="Progressions" symbol="♮"
+      hint="Listen to a sequence of chords and identify the Roman numeral progression (e.g. I–IV–V–I)."
       phase={phase} difficulty={difficulty}
       currentRound={currentRound} totalRounds={totalRounds} score={score}
       sessionStats={sessionStats}

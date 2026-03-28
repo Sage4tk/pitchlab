@@ -29,6 +29,7 @@ export function Rhythm() {
   return (
     <ExerciseShell
       title="Rhythm" symbol="♬"
+      hint="Hear a rhythmic pattern and tap it back to match the beat."
       phase={phase} difficulty={difficulty}
       currentRound={currentRound} totalRounds={totalRounds} score={score}
       sessionStats={sessionStats}
