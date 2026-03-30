@@ -9,7 +9,7 @@
 
 ## Medium Impact — Retention & Engagement
 
-- [ ] **Achievement/Badge System** — Milestone badges like "100 Perfect Intervals", "30-Day Streak", "Rhythm Master (90%+ accuracy)"
+- [x] **Achievement/Badge System** — Milestone badges like "100 Perfect Intervals", "30-Day Streak", "Rhythm Master (90%+ accuracy)"
 - [ ] **Cross-Device Spaced Rep Sync** — Sync spaced rep weights to Firestore (currently localStorage only)
 - [ ] **Streak Notifications / Daily Reminders** — Email or browser push to protect streaks and drive daily engagement
 - [ ] **Progress Milestones** — Celebratory moments ("You've nailed 500 intervals!") to break up the grind

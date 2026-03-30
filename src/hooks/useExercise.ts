@@ -3,10 +3,13 @@ import { useSession } from './useSession'
 import { useProgressStore } from '@/store/useProgressStore'
 import { useSpacedRepStore } from '@/store/useSpacedRepStore'
 import { useXPStore } from '@/store/useXPStore'
+import { useAchievementStore } from '@/store/useAchievementStore'
 import { calcXP } from '@/lib/levelSystem'
 import { saveAttempt } from '@/db/progress'
 import { updateStreak } from '@/db/streaks'
 import { addXPToFirestore } from '@/db/xp'
+import { saveAchievements } from '@/db/achievements'
+import { getNewAchievements, checkPerfectSession } from '@/lib/achievements'
 import type { Category } from '@/exercises/types'
 
 export type Phase = 'setup' | 'idle' | 'answering' | 'feedback' | 'results'
@@ -153,7 +156,6 @@ export function useExercise<TQuestion, TAnswer>({
       setSessionXP((prev) => prev + xp)
       if (xp > 0) {
         useXPStore.getState().addXP(xp)
-        if (user) void addXPToFirestore(user.uid, xp)
       }
 
       const attempt = {
@@ -164,12 +166,31 @@ export function useExercise<TQuestion, TAnswer>({
         createdAt: Date.now(),
       }
       addAttempt(attempt)
+      useAchievementStore.getState().recordAttempt(attempt)
       if (getItemLabelRef.current && question) {
         useSpacedRepStore.getState().recordResult(category, getItemLabelRef.current(question), correct)
       }
+
       if (user) {
-        void saveAttempt(user.uid, attempt)
-        void updateStreak(user.uid)
+        void (async () => {
+          if (xp > 0) await addXPToFirestore(user.uid, xp)
+          await saveAttempt(user.uid, attempt)
+          const streakData = await updateStreak(user.uid)
+
+          const achStore = useAchievementStore.getState()
+          const newIds = getNewAchievements(
+            achStore.stats,
+            useProgressStore.getState().attempts,
+            useXPStore.getState().totalXP,
+            useXPStore.getState().levelInfo.level,
+            streakData.current,
+            new Set(Object.keys(achStore.unlocked)),
+          )
+          if (newIds.length > 0) {
+            useAchievementStore.getState().unlockMany(newIds)
+            void saveAchievements(user.uid, newIds)
+          }
+        })()
       }
     },
     [question, phase, checkAnswer, category, difficulty, addAttempt, user],
@@ -180,6 +201,22 @@ export function useExercise<TQuestion, TAnswer>({
     if (currentRoundRef.current >= totalRoundsRef.current) {
       setQuestion(null)
       setPhase('results')
+      // Check perfect session achievement
+      if (user) {
+        setScore((currentScore) => {
+          const achStore = useAchievementStore.getState()
+          const newIds = checkPerfectSession(
+            currentScore,
+            totalRoundsRef.current,
+            new Set(Object.keys(achStore.unlocked)),
+          )
+          if (newIds.length > 0) {
+            achStore.unlockMany(newIds)
+            void saveAchievements(user.uid, newIds)
+          }
+          return currentScore
+        })
+      }
     } else if (isReviewModeRef.current && reviewQueueRef.current.length > 0) {
       const q = reviewQueueRef.current.shift()!
       setQuestion(q)

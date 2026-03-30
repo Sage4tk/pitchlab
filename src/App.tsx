@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { Center, Spinner } from '@chakra-ui/react'
 import { Navbar } from '@/components/Navbar'
 import { ProtectedRoute } from '@/components/ProtectedRoute'
+import { AchievementToast } from '@/components/AchievementToast'
 import { Landing } from '@/pages/Landing'
 import { preloadPiano } from '@/audio/AudioEngine'
 
@@ -21,6 +22,7 @@ const Settings = lazy(() => import('@/pages/Settings').then(m => ({ default: m.S
 const Courses = lazy(() => import('@/pages/Courses').then(m => ({ default: m.Courses })))
 const CourseDetail = lazy(() => import('@/pages/CourseDetail').then(m => ({ default: m.CourseDetail })))
 const CourseLesson = lazy(() => import('@/pages/CourseLesson').then(m => ({ default: m.CourseLesson })))
+const Achievements = lazy(() => import('@/pages/Achievements').then(m => ({ default: m.Achievements })))
 
 const PageSpinner = () => (
   <Center minH="100vh" bg="var(--bg)" style={{ background: 'var(--bg)' }}>
@@ -34,6 +36,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <Navbar />
+      <AchievementToast />
       <Suspense fallback={<PageSpinner />}>
       <Routes>
         <Route path="/" element={<Landing />} />
@@ -133,6 +136,14 @@ export default function App() {
           element={
             <ProtectedRoute>
               <CourseLesson />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/achievements"
+          element={
+            <ProtectedRoute>
+              <Achievements />
             </ProtectedRoute>
           }
         />

@@ -3,10 +3,12 @@ import { onAuthStateChanged, type User } from 'firebase/auth'
 import { auth } from '@/lib/firebase'
 import { getAllRecentAttempts } from '@/db/progress'
 import { getXP } from '@/db/xp'
+import { getAchievements } from '@/db/achievements'
 import { useProgressStore } from '@/store/useProgressStore'
 import { useXPStore } from '@/store/useXPStore'
 import { useSpacedRepStore } from '@/store/useSpacedRepStore'
 import { useCourseStore } from '@/store/useCourseStore'
+import { useAchievementStore } from '@/store/useAchievementStore'
 
 interface Session {
   user: User | null
@@ -22,6 +24,8 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   const loadXP = useXPStore((s) => s.loadXP)
   const resetSpacedRep = useSpacedRepStore((s) => s.reset)
   const resetCourses = useCourseStore((s) => s.resetProgress)
+  const loadAchievements = useAchievementStore((s) => s.load)
+  const resetAchievements = useAchievementStore((s) => s.reset)
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (u) => {
@@ -36,16 +40,20 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         getXP(u.uid)
           .then(loadXP)
           .catch(console.error)
+        getAchievements(u.uid)
+          .then(loadAchievements)
+          .catch(console.error)
       } else {
         // Clear stores on logout so stale data doesn't leak between accounts.
         loadAttempts([])
         loadXP(0)
         resetSpacedRep()
         resetCourses()
+        resetAchievements()
       }
     })
     return unsubscribe
-  }, [loadAttempts, loadXP, resetSpacedRep, resetCourses])
+  }, [loadAttempts, loadXP, resetSpacedRep, resetCourses, loadAchievements, resetAchievements])
 
   return <SessionContext value={{ user, loading }}>{children}</SessionContext>
 }
