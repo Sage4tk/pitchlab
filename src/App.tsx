@@ -4,6 +4,7 @@ import { Center, Spinner } from '@chakra-ui/react'
 import { Navbar } from '@/components/Navbar'
 import { ProtectedRoute } from '@/components/ProtectedRoute'
 import { AchievementToast } from '@/components/AchievementToast'
+import { MilestoneCelebration } from '@/components/MilestoneCelebration'
 import { Landing } from '@/pages/Landing'
 import { preloadPiano } from '@/audio/AudioEngine'
 
@@ -37,6 +38,7 @@ export default function App() {
     <BrowserRouter>
       <Navbar />
       <AchievementToast />
+      <MilestoneCelebration />
       <Suspense fallback={<PageSpinner />}>
       <Routes>
         <Route path="/" element={<Landing />} />

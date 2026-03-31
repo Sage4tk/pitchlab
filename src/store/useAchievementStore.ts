@@ -3,12 +3,21 @@ import { persist } from 'zustand/middleware'
 import type { AchievementStats } from '@/lib/achievements'
 import type { Attempt, Category } from '@/exercises/types'
 
+export interface MilestoneEvent {
+  category: Category
+  count: number
+}
+
+const MILESTONE_THRESHOLDS = [10, 25, 50, 100, 250, 500, 1000]
+
 interface AchievementState {
   unlocked: Record<string, number> // id → unlock timestamp
   queue: string[]                  // ids waiting to show as toast
+  milestoneQueue: MilestoneEvent[] // milestone celebrations pending display
   stats: AchievementStats
   unlockMany: (ids: string[]) => void
   dismissQueue: () => void
+  dismissMilestone: () => void
   load: (ids: Record<string, number>) => void
   recordAttempt: (attempt: Attempt) => void
   reset: () => void
@@ -25,6 +34,7 @@ export const useAchievementStore = create<AchievementState>()(
     (set, get) => ({
       unlocked: {},
       queue: [],
+      milestoneQueue: [],
       stats: emptyStats(),
 
       unlockMany(ids) {
@@ -39,6 +49,10 @@ export const useAchievementStore = create<AchievementState>()(
         set({ queue: [] })
       },
 
+      dismissMilestone() {
+        set((s) => ({ milestoneQueue: s.milestoneQueue.slice(1) }))
+      },
+
       load(ids) {
         set((s) => ({ unlocked: { ...ids, ...s.unlocked } }))
       },
@@ -51,13 +65,24 @@ export const useAchievementStore = create<AchievementState>()(
           fastCorrectCount: stats.fastCorrectCount,
           practicedCategories: { ...stats.practicedCategories, [cat]: true },
         }
+        const newMilestones: MilestoneEvent[] = []
         if (attempt.correct) {
-          newStats.correctByCategory[cat] = (newStats.correctByCategory[cat] ?? 0) + 1
+          const prev = newStats.correctByCategory[cat] ?? 0
+          const next = prev + 1
+          newStats.correctByCategory[cat] = next
           if (attempt.answerMs < 2000) {
             newStats.fastCorrectCount += 1
           }
+          if (MILESTONE_THRESHOLDS.includes(next)) {
+            newMilestones.push({ category: cat, count: next })
+          }
         }
-        set({ stats: newStats })
+        set((s) => ({
+          stats: newStats,
+          milestoneQueue: newMilestones.length > 0
+            ? [...s.milestoneQueue, ...newMilestones]
+            : s.milestoneQueue,
+        }))
       },
 
       reset() {
