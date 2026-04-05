@@ -53,5 +53,10 @@ export async function getStreak(userId: string): Promise<StreakData> {
   const ref = doc(db, 'users', userId, 'streak', 'current')
   const snap = await getDoc(ref)
   if (!snap.exists()) return { current: 0, longest: 0, lastSession: '' }
-  return snap.data() as StreakData
+  const data = snap.data() as StreakData
+  // Only show streak if the user has practiced today
+  if (data.lastSession !== todayStr()) {
+    return { ...data, current: 0 }
+  }
+  return data
 }
