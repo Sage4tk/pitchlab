@@ -109,6 +109,7 @@ interface ShellProps {
   children: React.ReactNode
   onReview?: () => void
   wrongCount?: number
+  setupExtras?: React.ReactNode
 }
 
 const DIFFICULTY_LABELS: Record<1 | 2 | 3, string> = { 1: 'Easy', 2: 'Medium', 3: 'Hard' }
@@ -122,7 +123,7 @@ const INSTRUMENT_OPTIONS: { value: SoundPreset; label: string }[] = [
 ]
 
 export function ExerciseShell({
-  title, symbol, hint, phase, difficulty, currentRound, totalRounds, score, sessionStats, onStartSession, onReset, children, onReview, wrongCount,
+  title, symbol, hint, phase, difficulty, currentRound, totalRounds, score, sessionStats, onStartSession, onReset, children, onReview, wrongCount, setupExtras,
 }: ShellProps) {
   const [selDiff, setSelDiff] = useState<1 | 2 | 3>(1)
   const [selRounds, setSelRounds] = useState<3 | 5 | 10>(5)
@@ -252,6 +253,9 @@ export function ExerciseShell({
                 ))}
               </div>
             </div>
+
+            {/* Exercise-specific extras */}
+            {setupExtras}
 
             {/* Piano loading indicator */}
             {soundPreset === 'piano' && !pianoSamplerReady && (

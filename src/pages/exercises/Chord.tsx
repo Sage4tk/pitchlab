@@ -1,7 +1,7 @@
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
 import { useExercise } from '@/hooks/useExercise'
 import { useKeyboardAnswer } from '@/hooks/useKeyboard'
-import { ChordExercise } from '@/exercises/ChordExercise'
+import { ChordExercise, INVERSION_LABELS } from '@/exercises/ChordExercise'
 import type { ChordQuestion } from '@/exercises/ChordExercise'
 import { AnswerGrid } from '@/components/AnswerGrid'
 import { PlayButton } from '@/components/PlayButton'
@@ -11,7 +11,9 @@ import { ExerciseShell, FeedbackRow, ReplayButton } from '@/pages/exercises/Inte
 import { CHORD_TIPS } from '@/data/feedbackTips'
 
 export function Chord() {
-  const generate = useCallback((d: 1 | 2 | 3) => ChordExercise.generate(d), [])
+  const [includeInversions, setIncludeInversions] = useState(false)
+
+  const generate = useCallback((d: 1 | 2 | 3) => ChordExercise.generate(d, includeInversions), [includeInversions])
   const check = useCallback((q: ChordQuestion, a: string) => ChordExercise.check(q, a), [])
   const getItemLabel = useCallback((q: ChordQuestion) => q.quality, [])
   const replayQuestion = useCallback((q: ChordQuestion) => { void playChord(q.notes) }, [])
@@ -26,7 +28,7 @@ export function Chord() {
 
   const options = question
     ? ChordExercise.options(question, difficulty)
-    : ChordExercise.options({ root: 'C4', notes: [], quality: 'Major' }, difficulty)
+    : ChordExercise.options({ root: 'C4', notes: [], quality: 'Major', inversion: 0 }, difficulty)
 
   useKeyboardAnswer(options, submit, phase === 'answering')
 
@@ -34,6 +36,60 @@ export function Chord() {
     if (!question) return
     void playChord(question.notes, '2n')
   }
+
+  const inversionsToggle = (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+      <div style={{ fontFamily: 'var(--font-body)', fontSize: '10px', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--text-muted)' }}>
+        Options
+      </div>
+      <button
+        onClick={() => setIncludeInversions(v => !v)}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '10px',
+          background: 'none',
+          border: '1px solid',
+          borderColor: includeInversions ? 'var(--accent)' : 'var(--border)',
+          borderRadius: 'var(--radius)',
+          padding: '10px 14px',
+          cursor: 'pointer',
+          transition: 'border-color 0.15s',
+          width: 'fit-content',
+        }}
+      >
+        <div style={{
+          width: '32px',
+          height: '18px',
+          borderRadius: '9px',
+          background: includeInversions ? 'var(--accent)' : 'var(--bg-highlight)',
+          position: 'relative',
+          transition: 'background 0.15s',
+          flexShrink: 0,
+        }}>
+          <div style={{
+            position: 'absolute',
+            top: '3px',
+            left: includeInversions ? '17px' : '3px',
+            width: '12px',
+            height: '12px',
+            borderRadius: '50%',
+            background: includeInversions ? '#0F0D0B' : 'var(--text-muted)',
+            transition: 'left 0.15s',
+          }} />
+        </div>
+        <span style={{
+          fontFamily: 'var(--font-body)',
+          fontSize: '12px',
+          color: includeInversions ? 'var(--text)' : 'var(--text-muted)',
+          letterSpacing: '0.04em',
+          transition: 'color 0.15s',
+        }}>
+          Include chord inversions
+        </span>
+      </button>
+    </div>
+  )
 
   return (
     <ExerciseShell
@@ -44,6 +100,7 @@ export function Chord() {
       sessionStats={sessionStats}
       onStartSession={startSession} onReset={reset}
       onReview={() => startReview(wrongQuestions)} wrongCount={wrongQuestions.length}
+      setupExtras={inversionsToggle}
     >
       {phase === 'idle' && <PlayButton label="Play Chord" onClick={play} />}
 
@@ -68,7 +125,9 @@ export function Chord() {
           <motion.div initial={{ opacity: 0, scale: 0.94 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.18 }}>
             <FeedbackRow
               isCorrect={isCorrect}
-              message={isCorrect ? 'Correct' : `It was ${question?.quality}`}
+              message={isCorrect
+                ? `Correct${includeInversions && question && question.inversion > 0 ? ` · ${INVERSION_LABELS[question.inversion]}` : ''}`
+                : `It was ${question?.quality}${includeInversions && question && question.inversion > 0 ? ` · ${INVERSION_LABELS[question.inversion]}` : ''}`}
               onNext={next}
               isLastRound={currentRound >= totalRounds}
               xpEarned={xpEarned}

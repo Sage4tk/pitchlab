@@ -58,7 +58,7 @@ function createChordGenerator(lesson: LessonDefinition) {
     const intervals = CHORDS[quality]
     const notes = intervals.map((s) => applyInterval(root, s))
     void playChord(notes, '2n')
-    return { root, notes, quality }
+    return { root, notes, quality, inversion: 0 }
   }
 
   const check = (q: ChordQuestion, a: string) => q.quality === a
