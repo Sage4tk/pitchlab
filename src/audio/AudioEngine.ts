@@ -213,4 +213,5 @@ export function setSoundPreset(preset: SoundPreset): void {
     pluckIndex = 0
   }
   if (guitarVerb) { guitarVerb.dispose(); guitarVerb = null }
+  if (preset === 'piano') getPianoSampler() // restart loading when switching back to piano
 }

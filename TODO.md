@@ -5,7 +5,7 @@
 - [ ] **Adaptive Difficulty** — Auto-scale difficulty based on recent accuracy (bump up at >80%, down at <50%) instead of requiring manual selection
 - [x] **Session Summary Screen** — After finishing a set, show recap: accuracy %, XP earned, streak status, weakest items, "practice weak spots" CTA
 - [x] **Richer Feedback** — Explain _why_ an answer is right/wrong (e.g., "Minor 3rd = 3 semitones, darker quality than Major 3rd")
-- [ ] **Chord Inversions** — Extend chord exercises to include 1st/2nd inversions, not just root position
+- [x] **Chord Inversions** — Extend chord exercises to include 1st/2nd inversions, not just root position
 
 ## Medium Impact — Retention & Engagement
 
