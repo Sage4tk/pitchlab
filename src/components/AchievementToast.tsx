@@ -5,39 +5,42 @@ import { ACHIEVEMENT_MAP } from '@/lib/achievements'
 export function AchievementToast() {
   const queue = useAchievementStore((s) => s.queue)
   const dismissQueue = useAchievementStore((s) => s.dismissQueue)
-  const [pending, setPending] = useState<string[]>([])
+  const pendingRef = useRef<string[]>([])
   const [current, setCurrent] = useState<string | null>(null)
   const [visible, setVisible] = useState(false)
   const processingRef = useRef(false)
+  const [tick, setTick] = useState(0)
 
   // Absorb new items from the store into local pending list
   useEffect(() => {
     if (queue.length > 0) {
-      setPending((prev) => [...prev, ...queue])
+      pendingRef.current = [...pendingRef.current, ...queue]
       dismissQueue()
+      setTick((t) => t + 1)
     }
   }, [queue, dismissQueue])
 
   // Process pending queue one at a time
   useEffect(() => {
-    if (processingRef.current || pending.length === 0) return
+    if (processingRef.current || pendingRef.current.length === 0) return
     processingRef.current = true
-    const [next, ...rest] = pending
-    setPending(rest)
+    const [next, ...rest] = pendingRef.current
+    pendingRef.current = rest
     setCurrent(next)
     setVisible(true)
 
-    const hideTimer = setTimeout(() => setVisible(false), 3800)
+    const hideTimer = setTimeout(() => setVisible(false), 5000)
     const clearTimer = setTimeout(() => {
       setCurrent(null)
       processingRef.current = false
-    }, 4200)
+      if (pendingRef.current.length > 0) setTick((t) => t + 1)
+    }, 5400)
 
     return () => {
       clearTimeout(hideTimer)
       clearTimeout(clearTimer)
     }
-  }, [pending])
+  }, [tick])
 
   if (!current) return null
   const achievement = ACHIEVEMENT_MAP.get(current)
