@@ -20,6 +20,10 @@
 - [ ] **Time Signature Variety** — Rhythm exercises in 3/4, 6/8, 5/4 — not just 4/4
 - [ ] **Interval Singing** — Hear a reference note, sing the requested interval (uses existing pitch detection)
 
+## Audio Quality
+
+- [ ] **Additional Guitar Samples** — Record clean single notes at C2 and C4 to supplement the current C3 sample; add them to the `Tone.Sampler` urls map in `AudioEngine.ts` to reduce pitch-shift artifacts on high/low notes
+
 ## UX Polish
 
 - [ ] **Mobile Piano Improvements** — Larger keys on small screens, visual press feedback, octave shift buttons

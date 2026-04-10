@@ -62,42 +62,51 @@ export function preloadPiano(): void {
   getPianoSampler() // triggers lazy init + async sample loading
 }
 
-// ── Guitar (PluckSynth pool + reverb) ────────────────────────────────────────
-const PLUCK_POOL_SIZE = 6
-let pluckPool: Tone.PluckSynth[] = []
-let pluckIndex = 0
-let guitarVerb: Tone.Freeverb | null = null
+// ── Guitar (real sample via Sampler) ─────────────────────────────────────────
+let guitarSampler: Tone.Sampler | null = null
+let guitarReady = false
+let guitarReadyCbs: (() => void)[] = []
 
-function getGuitarVerb(): Tone.Freeverb {
-  if (!guitarVerb) {
-    guitarVerb = new Tone.Freeverb({ roomSize: 0.35, dampening: 3500, wet: 0.28 }).toDestination()
+function getGuitarSampler(): Tone.Sampler {
+  if (!guitarSampler) {
+    guitarReady = false
+    guitarSampler = new Tone.Sampler({
+      urls: { C3: 'guitar-sample.wav' },
+      baseUrl: '/samples/',
+      onload() {
+        guitarReady = true
+        guitarReadyCbs.forEach((cb) => cb())
+        guitarReadyCbs = []
+      },
+    }).toDestination()
   }
-  return guitarVerb
+  return guitarSampler
 }
 
-function getNextPluck(): Tone.PluckSynth {
-  if (pluckPool.length === 0) {
-    const verb = getGuitarVerb()
-    for (let i = 0; i < PLUCK_POOL_SIZE; i++) {
-      pluckPool.push(
-        new Tone.PluckSynth({ attackNoise: 1, dampening: 3200, resonance: 0.985 }).connect(verb)
-      )
-    }
+export function isGuitarReady(): boolean { return guitarReady }
+
+export function onGuitarReady(cb: () => void): () => void {
+  if (guitarReady) { cb(); return () => {} }
+  guitarReadyCbs.push(cb)
+  return () => {
+    const idx = guitarReadyCbs.indexOf(cb)
+    if (idx >= 0) guitarReadyCbs.splice(idx, 1)
   }
-  const p = pluckPool[pluckIndex % PLUCK_POOL_SIZE]
-  pluckIndex++
-  return p
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 function isPiano(): boolean { return currentPreset === 'piano' }
 function isGuitar(): boolean { return currentPreset === 'guitar' }
 
+export function preloadGuitar(): void {
+  getGuitarSampler()
+}
+
 // ── Public API ───────────────────────────────────────────────────────────────
 export async function playNote(note: string, duration = '2n'): Promise<void> {
   await Tone.start()
   if (isGuitar()) {
-    getNextPluck().triggerAttack(note, Tone.now())
+    getGuitarSampler().triggerAttackRelease(note, duration)
   } else if (isPiano()) {
     getPianoSampler().triggerAttackRelease(note, duration)
   } else {
@@ -110,8 +119,9 @@ export async function playInterval(root: string, target: string, duration = '4n'
   const now = Tone.now()
   const durationSec = Tone.Time(duration).toSeconds()
   if (isGuitar()) {
-    getNextPluck().triggerAttack(root, now)
-    getNextPluck().triggerAttack(target, now + durationSec)
+    const g = getGuitarSampler()
+    g.triggerAttackRelease(root, duration, now)
+    g.triggerAttackRelease(target, duration, now + durationSec)
   } else if (isPiano()) {
     const s = getPianoSampler()
     s.triggerAttackRelease(root, duration, now)
@@ -127,8 +137,9 @@ export async function playChord(notes: string[], duration = '2n'): Promise<void>
   await Tone.start()
   if (isGuitar()) {
     const now = Tone.now()
+    const g = getGuitarSampler()
     notes.forEach((note, i) => {
-      getNextPluck().triggerAttack(note, now + i * 0.04) // strum
+      g.triggerAttackRelease(note, duration, now + i * 0.04) // strum
     })
   } else if (isPiano()) {
     getPianoSampler().triggerAttackRelease(notes, duration)
@@ -142,8 +153,9 @@ export async function playMelody(notes: string[], bpm = 120): Promise<void> {
   const now = Tone.now()
   const beatDuration = 60 / bpm
   if (isGuitar()) {
+    const g = getGuitarSampler()
     notes.forEach((note, i) => {
-      getNextPluck().triggerAttack(note, now + i * beatDuration)
+      g.triggerAttackRelease(note, '4n', now + i * beatDuration)
     })
   } else if (isPiano()) {
     const s = getPianoSampler()
@@ -163,8 +175,9 @@ export async function playRhythm(pattern: boolean[], bpm = 80): Promise<void> {
   const beatDuration = 60 / bpm
   const now = Tone.now()
   if (isGuitar()) {
+    const g = getGuitarSampler()
     pattern.forEach((hit, i) => {
-      if (hit) getNextPluck().triggerAttack('C3', now + i * beatDuration)
+      if (hit) g.triggerAttackRelease('C3', '8n', now + i * beatDuration)
     })
   } else if (isPiano()) {
     const s = getPianoSampler()
@@ -184,10 +197,11 @@ export async function playChordProgression(chordNotes: string[][], bpm = 70): Pr
   const now = Tone.now()
   const beatDuration = (60 / bpm) * 2 // 2 beats per chord
   if (isGuitar()) {
+    const g = getGuitarSampler()
     chordNotes.forEach((notes, i) => {
       const startTime = now + i * beatDuration
       notes.forEach((note, j) => {
-        getNextPluck().triggerAttack(note, startTime + j * 0.04)
+        g.triggerAttackRelease(note, '2n', startTime + j * 0.04)
       })
     })
   } else if (isPiano()) {
@@ -207,11 +221,7 @@ export function setSoundPreset(preset: SoundPreset): void {
   currentPreset = preset
   if (polySynth) { polySynth.dispose(); polySynth = null }
   if (pianoSampler) { pianoSampler.dispose(); pianoSampler = null; pianoReady = false; pianoReadyCbs = [] }
-  if (pluckPool.length > 0) {
-    pluckPool.forEach((p) => p.dispose())
-    pluckPool = []
-    pluckIndex = 0
-  }
-  if (guitarVerb) { guitarVerb.dispose(); guitarVerb = null }
-  if (preset === 'piano') getPianoSampler() // restart loading when switching back to piano
+  if (guitarSampler) { guitarSampler.dispose(); guitarSampler = null; guitarReady = false; guitarReadyCbs = [] }
+  if (preset === 'piano') getPianoSampler()
+  if (preset === 'guitar') getGuitarSampler()
 }
