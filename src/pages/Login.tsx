@@ -116,18 +116,33 @@ export function Login() {
               Sign up free
             </Link>
           </span>
-          <Link to="/privacy" style={{
-            fontFamily: 'var(--font-body)',
-            fontSize: '11px',
-            color: 'var(--text-faint)',
-            textDecoration: 'none',
-            letterSpacing: '0.03em',
-          }}
-            onMouseEnter={e => { e.currentTarget.style.color = 'var(--text-muted)' }}
-            onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-faint)' }}
-          >
-            Privacy Policy
-          </Link>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '16px' }}>
+            <Link to="/privacy" style={{
+              fontFamily: 'var(--font-body)',
+              fontSize: '11px',
+              color: 'var(--text-faint)',
+              textDecoration: 'none',
+              letterSpacing: '0.03em',
+            }}
+              onMouseEnter={e => { e.currentTarget.style.color = 'var(--text-muted)' }}
+              onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-faint)' }}
+            >
+              Privacy Policy
+            </Link>
+            <span style={{ color: 'var(--text-faint)', fontSize: '11px' }}>·</span>
+            <Link to="/terms" style={{
+              fontFamily: 'var(--font-body)',
+              fontSize: '11px',
+              color: 'var(--text-faint)',
+              textDecoration: 'none',
+              letterSpacing: '0.03em',
+            }}
+              onMouseEnter={e => { e.currentTarget.style.color = 'var(--text-muted)' }}
+              onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-faint)' }}
+            >
+              Terms of Use
+            </Link>
+          </div>
         </div>
       </div>
     </AuthShell>

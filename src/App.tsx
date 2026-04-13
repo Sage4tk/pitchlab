@@ -25,6 +25,7 @@ const CourseDetail = lazy(() => import('@/pages/CourseDetail').then(m => ({ defa
 const CourseLesson = lazy(() => import('@/pages/CourseLesson').then(m => ({ default: m.CourseLesson })))
 const Achievements = lazy(() => import('@/pages/Achievements').then(m => ({ default: m.Achievements })))
 const PrivacyPolicy = lazy(() => import('@/pages/PrivacyPolicy').then(m => ({ default: m.PrivacyPolicy })))
+const TermsOfUse = lazy(() => import('@/pages/TermsOfUse').then(m => ({ default: m.TermsOfUse })))
 
 const PageSpinner = () => (
   <Center minH="100vh" bg="var(--bg)" style={{ background: 'var(--bg)' }}>
@@ -47,6 +48,7 @@ export default function App() {
         <Route path="/signup" element={<Signup />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/privacy" element={<PrivacyPolicy />} />
+        <Route path="/terms" element={<TermsOfUse />} />
         <Route
           path="/dashboard"
           element={
