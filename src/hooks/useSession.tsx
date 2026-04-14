@@ -23,6 +23,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   const loadAttempts = useProgressStore((s) => s.loadAttempts)
   const loadXP = useXPStore((s) => s.loadXP)
   const resetSpacedRep = useSpacedRepStore((s) => s.reset)
+  const loadCourseProgress = useCourseStore((s) => s.loadProgress)
   const resetCourses = useCourseStore((s) => s.resetProgress)
   const loadAchievements = useAchievementStore((s) => s.load)
   const resetAchievements = useAchievementStore((s) => s.reset)
@@ -43,6 +44,8 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         getAchievements(u.uid)
           .then(loadAchievements)
           .catch(console.error)
+        loadCourseProgress(u.uid)
+          .catch(console.error)
       } else {
         // Clear stores on logout so stale data doesn't leak between accounts.
         loadAttempts([])
@@ -53,7 +56,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       }
     })
     return unsubscribe
-  }, [loadAttempts, loadXP, resetSpacedRep, resetCourses, loadAchievements, resetAchievements])
+  }, [loadAttempts, loadXP, resetSpacedRep, resetCourses, loadCourseProgress, loadAchievements, resetAchievements])
 
   return <SessionContext value={{ user, loading }}>{children}</SessionContext>
 }

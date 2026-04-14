@@ -19,16 +19,18 @@ export function CourseLesson() {
   const course = courseId ? getCourse(courseId) : undefined
   const lesson = courseId && lessonId ? getLesson(courseId, lessonId) : undefined
   const { user } = useSession()
-  const { completeLesson, startCourse, isLessonUnlocked, progress } = useCourseStore()
+  const { completeLesson, startCourse, isLessonUnlocked, progress, loaded } = useCourseStore()
 
-  // Ensure course is started
+  // Ensure course is started — wait for Firestore to load first so we
+  // don't create a blank record that races with the real data.
   useEffect(() => {
-    if (course && !progress[course.id]) {
+    if (loaded && course && !progress[course.id]) {
       startCourse(course.id, user?.uid)
     }
-  }, [course, progress, startCourse, user?.uid])
+  }, [loaded, course, progress, startCourse, user?.uid])
 
   if (!course || !lesson) return <Navigate to="/courses" replace />
+  if (!loaded) return null
   if (!isLessonUnlocked(course.id, lesson.id)) return <Navigate to={`/courses/${course.id}`} replace />
 
   return (
