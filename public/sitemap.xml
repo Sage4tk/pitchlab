@@ -6,28 +6,23 @@
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://pitchlabsapp.com/exercises/interval</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <loc>https://pitchlabsapp.com/login</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
   </url>
   <url>
-    <loc>https://pitchlabsapp.com/exercises/chord</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <loc>https://pitchlabsapp.com/signup</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://pitchlabsapp.com/exercises/melody</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <loc>https://pitchlabsapp.com/privacy</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.2</priority>
   </url>
   <url>
-    <loc>https://pitchlabsapp.com/exercises/rhythm</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://pitchlabsapp.com/exercises/progression</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <loc>https://pitchlabsapp.com/terms</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.2</priority>
   </url>
 </urlset>
