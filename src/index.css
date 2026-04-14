@@ -111,10 +111,24 @@ body {
   .hero-cta-row a { display: block !important; width: 100% !important; }
   .hero-cta-row a > button { width: 100% !important; box-sizing: border-box !important; }
 
-  /* Disciplines + highlights grid: 2 columns on mobile */
-  .disciplines-grid,
-  .highlights-grid {
+  /* Disciplines grid: 2 columns on mobile */
+  .disciplines-grid {
     grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  /* Highlights bento: 1 column on mobile */
+  .highlights-bento {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Highlights header: stack vertically on mobile */
+  .highlights-header {
+    flex-direction: column !important;
+    gap: 24px !important;
+  }
+  .highlights-header > div {
+    position: static !important;
+    max-width: 100% !important;
   }
 
   /* Dashboard: header wrap + quick practice stack */

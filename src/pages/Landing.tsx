@@ -1,6 +1,21 @@
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 
+// Highlight section — small icon chips
+import hlIcon1 from '@/assets/highlights/icon-1.svg'
+import hlIcon2 from '@/assets/highlights/icon-2.svg'
+import hlIcon3 from '@/assets/highlights/icon-3.svg'
+import hlIcon4 from '@/assets/highlights/icon-4.svg'
+import hlIcon5 from '@/assets/highlights/icon-5.svg'
+import hlIcon6 from '@/assets/highlights/icon-6.svg'
+// Highlight section — decorative bottom-right copies
+import hlDeco1 from '@/assets/highlights/deco-1.svg'
+import hlDeco2 from '@/assets/highlights/deco-2.svg'
+import hlDeco3 from '@/assets/highlights/deco-3.svg'
+import hlDeco4 from '@/assets/highlights/deco-4.svg'
+import hlDeco5 from '@/assets/highlights/deco-5.svg'
+import hlDeco6 from '@/assets/highlights/deco-6.svg'
+
 const features = [
   {
     symbol: '♩',
@@ -40,36 +55,54 @@ const features = [
   },
 ]
 
-const highlights = [
+// [icon w, icon h, deco w, deco h] — exact pixel sizes from Figma
+type Highlight = {
+  name: string
+  description: string
+  iconSrc: string
+  iconW: number
+  iconH: number
+  decoSrc: string
+  decoW: number
+  decoH: number
+}
+
+const highlights: Highlight[] = [
   {
-    symbol: '⬆',
     name: 'XP & Leveling',
     description: 'Earn experience points with every session and watch your level grow.',
+    iconSrc: hlIcon1, iconW: 16, iconH: 16,
+    decoSrc: hlDeco1, decoW: 107, decoH: 107,
   },
   {
-    symbol: '🔁',
     name: 'Smart Practice',
     description: 'Spaced repetition surfaces your weak spots so you improve faster.',
+    iconSrc: hlIcon2, iconW: 17, iconH: 18,
+    decoSrc: hlDeco2, decoW: 112, decoH: 120,
   },
   {
-    symbol: '🔥',
     name: 'Heat Map',
     description: 'Visualize your training activity and keep your streak alive.',
+    iconSrc: hlIcon3, iconW: 16, iconH: 18,
+    decoSrc: hlDeco3, decoW: 107, decoH: 107,
   },
   {
-    symbol: '📋',
     name: 'Mistakes Rundown',
     description: 'Review exactly what you got wrong after each session to learn from errors.',
+    iconSrc: hlIcon4, iconW: 16, iconH: 18,
+    decoSrc: hlDeco4, decoW: 107, decoH: 107,
   },
   {
-    symbol: '↩',
     name: 'Undo',
     description: 'Made a misclick? Undo your last answer and try again.',
+    iconSrc: hlIcon5, iconW: 14, iconH: 13,
+    decoSrc: hlDeco5, decoW: 107, decoH: 71,
   },
   {
-    symbol: '🎹',
     name: 'Multiple Instruments',
     description: 'Train with piano, guitar, triangle, sine, and sawtooth tones.',
+    iconSrc: hlIcon6, iconW: 16, iconH: 18,
+    decoSrc: hlDeco6, decoW: 107, decoH: 107,
   },
 ]
 
@@ -409,40 +442,69 @@ export function Landing() {
       </div>
 
       {/* ── Highlights ───────────────────────────────────── */}
-      <div style={{ padding: '80px 24px', background: 'var(--bg)' }}>
-        <div style={{ maxWidth: '960px', margin: '0 auto' }}>
+      <div style={{ padding: '80px 24px 0', background: 'var(--bg)' }}>
+        <div style={{ maxWidth: '960px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '48px' }}>
+
+          {/* Split header */}
           <motion.div
             variants={fadeUp}
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
-            style={{ textAlign: 'center', marginBottom: '56px' }}
+            className="highlights-header"
+            style={{ display: 'flex', alignItems: 'flex-start', position: 'relative', minHeight: '100px' }}
           >
+            {/* Left: big heading */}
             <h2 style={{
               fontFamily: 'var(--font-display)',
-              fontSize: 'clamp(32px, 4vw, 52px)',
-              fontWeight: 600,
+              fontSize: 'clamp(36px, 5vw, 52px)',
+              fontWeight: 400,
               color: 'var(--text)',
-              letterSpacing: '-0.01em',
-              margin: '0 0 12px',
+              letterSpacing: '-0.025em',
+              lineHeight: 1,
+              margin: 0,
+              flex: '0 0 auto',
+              maxWidth: '60%',
             }}>
-              More than just exercises.
+              More than just<br />exercises.
             </h2>
-            <p style={{
-              fontFamily: 'var(--font-body)',
-              fontSize: '13px',
-              color: 'var(--text-muted)',
-              letterSpacing: '0.03em',
+
+            {/* Right: descriptor + divider */}
+            <div style={{
+              position: 'absolute',
+              right: 0,
+              top: '43px',
+              maxWidth: '384px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '20px',
             }}>
-              Tools that make your practice smarter and more rewarding.
-            </p>
+              <p style={{
+                fontFamily: 'var(--font-body)',
+                fontSize: '13px',
+                color: '#D1C5B4',
+                lineHeight: 1.7,
+                margin: 0,
+                letterSpacing: '0.01em',
+              }}>
+                Tools that make your practice smarter and more rewarding.
+              </p>
+              <div style={{
+                width: '96px',
+                height: '1px',
+                opacity: 0.5,
+                background: 'linear-gradient(135deg, #E9C176 0%, #C5A059 100%)',
+              }} />
+            </div>
           </motion.div>
 
-          <div className="highlights-grid" style={{
+          {/* 3×2 bento grid */}
+          <div className="highlights-bento" style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(3, 1fr)',
             gap: '16px',
+            paddingBottom: '80px',
           }}>
             {highlights.map((h, i) => (
               <motion.div
@@ -452,73 +514,89 @@ export function Landing() {
                 whileInView="visible"
                 viewport={{ once: true }}
                 transition={{ duration: 0.4, delay: i * 0.08 }}
-                className="highlight-card"
                 style={{
                   position: 'relative',
-                  background: 'var(--bg-surface)',
-                  border: '1px solid var(--border)',
-                  borderRadius: 'var(--radius-lg)',
-                  padding: '32px 28px 28px',
+                  background: '#1C1C1A',
+                  border: '1px solid rgba(233,193,118,0.15)',
+                  borderRadius: '8px',
+                  padding: '32px',
                   overflow: 'hidden',
                   transition: 'transform 0.25s, border-color 0.25s, box-shadow 0.25s',
                   cursor: 'default',
                 }}
                 onMouseEnter={e => {
                   const el = e.currentTarget as HTMLDivElement
-                  el.style.borderColor = 'var(--accent)'
                   el.style.transform = 'translateY(-4px)'
-                  el.style.boxShadow = '0 8px 32px rgba(212,146,58,0.12)'
+                  el.style.borderColor = 'rgba(233,193,118,0.45)'
+                  el.style.boxShadow = '0 8px 32px rgba(233,193,118,0.08)'
                 }}
                 onMouseLeave={e => {
                   const el = e.currentTarget as HTMLDivElement
-                  el.style.borderColor = 'var(--border)'
                   el.style.transform = 'translateY(0)'
+                  el.style.borderColor = 'rgba(233,193,118,0.15)'
                   el.style.boxShadow = 'none'
                 }}
               >
-                {/* Top accent line */}
-                <div style={{
-                  position: 'absolute',
-                  top: 0,
-                  left: '28px',
-                  right: '28px',
-                  height: '2px',
-                  background: 'linear-gradient(90deg, var(--accent), transparent)',
-                  opacity: 0.4,
-                }} />
+                {/* Decorative copy — bottom-right, partially clipped, exact Figma sizing */}
+                <img
+                  alt=""
+                  src={h.decoSrc}
+                  style={{
+                    position: 'absolute',
+                    bottom: '-40px',
+                    right: '-40px',
+                    width: `${h.decoW}px`,
+                    height: `${h.decoH}px`,
+                    display: 'block',
+                    pointerEvents: 'none',
+                  }}
+                />
 
-                {/* Icon with glow background */}
+                {/* Icon chip */}
                 <div style={{
                   width: '48px',
                   height: '48px',
                   borderRadius: '12px',
-                  background: 'rgba(212,146,58,0.08)',
-                  border: '1px solid rgba(212,146,58,0.15)',
+                  background: '#50483F',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: '22px',
-                  marginBottom: '20px',
+                  flexShrink: 0,
+                  position: 'relative',
+                  zIndex: 1,
                 }}>
-                  {h.symbol}
+                  <img
+                    alt=""
+                    src={h.iconSrc}
+                    style={{ width: `${h.iconW}px`, height: `${h.iconH}px`, display: 'block' }}
+                  />
                 </div>
 
+                {/* Title */}
                 <div style={{
                   fontFamily: 'var(--font-display)',
                   fontSize: '18px',
                   fontWeight: 600,
-                  color: 'var(--text)',
+                  color: '#E9C176',
+                  lineHeight: 1.3,
+                  marginTop: '20px',
                   marginBottom: '8px',
                   letterSpacing: '-0.01em',
+                  position: 'relative',
+                  zIndex: 1,
                 }}>
                   {h.name}
                 </div>
+
+                {/* Description */}
                 <p style={{
                   fontFamily: 'var(--font-body)',
                   fontSize: '12px',
-                  color: 'var(--text-muted)',
-                  lineHeight: 1.8,
+                  color: '#D1C5B4',
+                  lineHeight: 1.75,
                   margin: 0,
+                  position: 'relative',
+                  zIndex: 1,
                   letterSpacing: '0.01em',
                 }}>
                   {h.description}
@@ -527,6 +605,7 @@ export function Landing() {
             ))}
           </div>
         </div>
+
       </div>
 
       {/* ── How it works ─────────────────────────────────── */}
