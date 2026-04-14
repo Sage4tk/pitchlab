@@ -514,27 +514,12 @@ export function Landing() {
                 whileInView="visible"
                 viewport={{ once: true }}
                 transition={{ duration: 0.4, delay: i * 0.08 }}
+                className="highlight-card"
                 style={{
-                  position: 'relative',
                   background: '#1C1C1A',
                   border: '1px solid rgba(233,193,118,0.15)',
                   borderRadius: '8px',
                   padding: '32px',
-                  overflow: 'hidden',
-                  transition: 'transform 0.25s, border-color 0.25s, box-shadow 0.25s',
-                  cursor: 'default',
-                }}
-                onMouseEnter={e => {
-                  const el = e.currentTarget as HTMLDivElement
-                  el.style.transform = 'translateY(-4px)'
-                  el.style.borderColor = 'rgba(233,193,118,0.45)'
-                  el.style.boxShadow = '0 8px 32px rgba(233,193,118,0.08)'
-                }}
-                onMouseLeave={e => {
-                  const el = e.currentTarget as HTMLDivElement
-                  el.style.transform = 'translateY(0)'
-                  el.style.borderColor = 'rgba(233,193,118,0.15)'
-                  el.style.boxShadow = 'none'
                 }}
               >
                 {/* Decorative copy — bottom-right, partially clipped, exact Figma sizing */}
