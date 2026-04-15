@@ -19,6 +19,7 @@ export function ProtectedRoute({ children }: Props) {
   }
 
   if (!user) return <Navigate to="/login" replace />
+  if (!user.emailVerified) return <Navigate to="/login" replace />
 
   return <>{children}</>
 }

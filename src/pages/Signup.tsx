@@ -12,7 +12,7 @@ export function Signup() {
   const [done, setDone] = useState(false);
   const { user, loading } = useSession();
 
-  if (!loading && user) return <Navigate to="/dashboard" replace />;
+  if (!loading && user && user.emailVerified) return <Navigate to="/dashboard" replace />;
 
   async function handleSubmit(email: string, password: string) {
     setError("");

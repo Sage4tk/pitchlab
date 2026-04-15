@@ -2,23 +2,48 @@ import { useState } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import { AuthForm } from "@/components/AuthForm";
 import { GoogleButton } from "@/components/GoogleButton";
-import { signIn, signInWithGoogle } from "@/lib/firebaseAuth";
+import {
+  signIn,
+  signInWithGoogle,
+  resendVerification,
+  EmailNotVerifiedError,
+} from "@/lib/firebaseAuth";
 import { useSession } from "@/hooks/useSession";
 
 export function Login() {
   const navigate = useNavigate();
   const [error, setError] = useState("");
+  const [unverified, setUnverified] = useState<{ email: string; password: string } | null>(null);
+  const [resendStatus, setResendStatus] = useState<"idle" | "sending" | "sent">("idle");
   const { user, loading } = useSession();
 
-  if (!loading && user) return <Navigate to="/dashboard" replace />;
+  if (!loading && user && user.emailVerified) return <Navigate to="/dashboard" replace />;
 
   async function handleSubmit(email: string, password: string) {
     setError("");
+    setResendStatus("idle");
     try {
       await signIn(email, password);
       navigate("/dashboard");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Login failed");
+      if (err instanceof EmailNotVerifiedError) {
+        setUnverified({ email, password });
+        setError(err.message);
+      } else {
+        setError("Invalid email or password.");
+      }
+    }
+  }
+
+  async function handleResend() {
+    if (!unverified) return;
+    setResendStatus("sending");
+    try {
+      await resendVerification(unverified.email, unverified.password);
+      setResendStatus("sent");
+    } catch {
+      setResendStatus("idle");
+      setError("Could not resend verification email.");
     }
   }
 
@@ -99,6 +124,42 @@ export function Login() {
         </div>
 
         <AuthForm mode="login" onSubmit={handleSubmit} error={error} />
+
+        {unverified && (
+          <div
+            style={{
+              fontFamily: "var(--font-body)",
+              fontSize: "12px",
+              color: "var(--text-muted)",
+              textAlign: "center",
+              marginTop: "-12px",
+            }}
+          >
+            {resendStatus === "sent" ? (
+              <span style={{ color: "var(--accent)" }}>
+                Verification email sent. Check your inbox.
+              </span>
+            ) : (
+              <button
+                type="button"
+                onClick={handleResend}
+                disabled={resendStatus === "sending"}
+                style={{
+                  background: "none",
+                  border: "none",
+                  padding: 0,
+                  color: "var(--accent)",
+                  cursor: resendStatus === "sending" ? "wait" : "pointer",
+                  fontFamily: "inherit",
+                  fontSize: "inherit",
+                  textDecoration: "underline",
+                }}
+              >
+                {resendStatus === "sending" ? "Sending…" : "Resend verification email"}
+              </button>
+            )}
+          </div>
+        )}
 
         <div
           style={{
