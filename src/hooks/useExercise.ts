@@ -11,6 +11,7 @@ import { addXPToFirestore } from '@/db/xp'
 import { saveAchievements } from '@/db/achievements'
 import { getNewAchievements, checkPerfectSession } from '@/lib/achievements'
 import type { Category } from '@/exercises/types'
+import { trackSessionStart, trackSessionComplete } from '@/lib/analytics'
 
 export type Phase = 'setup' | 'idle' | 'answering' | 'feedback' | 'results'
 
@@ -68,6 +69,7 @@ export function useExercise<TQuestion, TAnswer>({
   const [score, setScore] = useState(0)
   const [wrongQuestions, setWrongQuestions] = useState<TQuestion[]>([])
   const [sessionXP, setSessionXP] = useState(0)
+  const sessionXPRef = useRef(0)
   const answerTimesRef = useRef<number[]>([])
 
   // Refs so callbacks always see current values without stale closure issues
@@ -94,13 +96,15 @@ export function useExercise<TQuestion, TAnswer>({
     setScore(0)
     setWrongQuestions([])
     setSessionXP(0)
+    sessionXPRef.current = 0
     answerTimesRef.current = []
     reviewQueueRef.current = []
     isReviewModeRef.current = false
     setQuestion(null)
     setIsCorrect(null)
     setPhase('idle')
-  }, [])
+    trackSessionStart(category, diff, rounds)
+  }, [category])
 
   const startReview = useCallback((questions: TQuestion[]) => {
     reviewQueueRef.current = [...questions]
@@ -153,6 +157,7 @@ export function useExercise<TQuestion, TAnswer>({
 
       const xp = correct ? calcXP(difficulty, answerMs) : 0
       setXpEarned(xp)
+      sessionXPRef.current += xp
       setSessionXP((prev) => prev + xp)
       if (xp > 0) {
         useXPStore.getState().addXP(xp)
@@ -201,6 +206,10 @@ export function useExercise<TQuestion, TAnswer>({
     if (currentRoundRef.current >= totalRoundsRef.current) {
       setQuestion(null)
       setPhase('results')
+      setScore((currentScore) => {
+        trackSessionComplete(category, currentScore, totalRoundsRef.current, sessionXPRef.current)
+        return currentScore
+      })
       // Check perfect session achievement
       if (user) {
         setScore((currentScore) => {
@@ -234,7 +243,7 @@ export function useExercise<TQuestion, TAnswer>({
       setPhase('answering')
       startTimeRef.current = Date.now()
     }
-  }, [generateQuestion])
+  }, [generateQuestion, category, user])
 
   const reset = useCallback(() => {
     setPhase('setup')
@@ -245,6 +254,7 @@ export function useExercise<TQuestion, TAnswer>({
     setScore(0)
     setWrongQuestions([])
     setSessionXP(0)
+    sessionXPRef.current = 0
     answerTimesRef.current = []
     reviewQueueRef.current = []
     isReviewModeRef.current = false
