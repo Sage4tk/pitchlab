@@ -19,8 +19,8 @@ export function Signup() {
     try {
       await signUp(email, password);
       setDone(true);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Sign up failed");
+    } catch {
+      setError("Could not create account. Try again.");
     }
   }
 
@@ -29,8 +29,8 @@ export function Signup() {
     try {
       await signInWithGoogle();
       navigate("/dashboard");
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Google sign-in failed");
+    } catch {
+      setError("Google sign-in failed. Try again.");
     }
   }
 

@@ -13,11 +13,10 @@ export function ForgotPassword() {
     setError("");
     try {
       await resetPassword(email);
+    } catch {
+      // Swallow errors to avoid leaking whether the email exists.
+    } finally {
       setSent(true);
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Failed to send reset email",
-      );
     }
   }
 

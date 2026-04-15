@@ -52,8 +52,8 @@ export function Login() {
     try {
       await signInWithGoogle();
       navigate("/dashboard");
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Google sign-in failed");
+    } catch {
+      setError("Google sign-in failed. Try again.");
     }
   }
 
