@@ -5,6 +5,7 @@ import { Navbar } from '@/components/Navbar'
 import { ProtectedRoute } from '@/components/ProtectedRoute'
 import { AchievementToast } from '@/components/AchievementToast'
 import { MilestoneCelebration } from '@/components/MilestoneCelebration'
+import { ConsentBanner } from '@/components/ConsentBanner'
 import { Landing } from '@/pages/Landing'
 import { preloadPiano } from '@/audio/AudioEngine'
 
@@ -41,6 +42,7 @@ export default function App() {
       <Navbar />
       <AchievementToast />
       <MilestoneCelebration />
+      <ConsentBanner />
       <Suspense fallback={<PageSpinner />}>
       <Routes>
         <Route path="/" element={<Landing />} />

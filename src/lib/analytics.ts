@@ -1,9 +1,15 @@
 import { logEvent } from 'firebase/analytics'
-import { analytics } from '@/lib/firebase'
+import { getAnalyticsInstance } from '@/lib/firebase'
 import type { Category } from '@/exercises/types'
 
+function log(eventName: string, params: Record<string, string | number>) {
+  const instance = getAnalyticsInstance()
+  if (!instance) return
+  logEvent(instance, eventName, params)
+}
+
 export function trackSessionStart(category: Category, difficulty: 1 | 2 | 3, rounds: number) {
-  logEvent(analytics, 'exercise_session_start', { category, difficulty, rounds })
+  log('exercise_session_start', { category, difficulty, rounds })
 }
 
 export function trackSessionComplete(
@@ -12,7 +18,7 @@ export function trackSessionComplete(
   totalRounds: number,
   sessionXP: number,
 ) {
-  logEvent(analytics, 'exercise_session_complete', {
+  log('exercise_session_complete', {
     category,
     score,
     total_rounds: totalRounds,
