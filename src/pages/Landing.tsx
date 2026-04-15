@@ -205,7 +205,7 @@ export function Landing() {
               letterSpacing: "0.02em",
             }}
           >
-            Pitchlab
+            Pitchlabs
           </span>
           <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
             <Link
@@ -900,7 +900,7 @@ export function Landing() {
             marginTop: "48px",
           }}
         >
-          Pitchlab — ear training.
+          Pitchlabs — ear training.
         </p>
       </div>
     </div>
