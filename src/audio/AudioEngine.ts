@@ -133,7 +133,7 @@ function getGuitarSampler(): Tone.Sampler {
   if (!guitarSampler) {
     guitarReady = false;
     guitarSampler = new Tone.Sampler({
-      urls: { C3: "guitar-sample.wav" },
+      urls: { C4: "guitar-sample.wav" },
       baseUrl: "/samples/",
       onload() {
         guitarReady = true;

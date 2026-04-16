@@ -129,16 +129,20 @@ export function ExerciseShell({
   const [selRounds, setSelRounds] = useState<3 | 5 | 10>(5)
   const { soundPreset, setSoundPreset: storeSoundPreset } = useExerciseStore()
   const [pianoSamplerReady, setPianoSamplerReady] = useState(() => isPianoReady())
-  const [pianoLoadFailed, setPianoLoadFailed] = useState(() => isPianoFailed())
+  const [pianoLoadFailed, setPianoLoadFailed] = useState(false)
 
   useEffect(() => {
     if (soundPreset !== 'piano') { setPianoSamplerReady(true); setPianoLoadFailed(false); return }
     if (isPianoReady()) { setPianoSamplerReady(true); return }
-    if (isPianoFailed()) { setPianoLoadFailed(true); return }
+    if (isPianoFailed()) {
+      storeSoundPreset('sine'); setAudioPreset('sine'); setPianoLoadFailed(true); return
+    }
     setPianoSamplerReady(false)
     setPianoLoadFailed(false)
     const unsubReady = onPianoReady(() => { setPianoSamplerReady(true); setPianoLoadFailed(false) })
-    const unsubError = onPianoError(() => { setPianoLoadFailed(true) })
+    const unsubError = onPianoError(() => {
+      storeSoundPreset('sine'); setAudioPreset('sine'); setPianoLoadFailed(true)
+    })
     return () => { unsubReady(); unsubError() }
   }, [soundPreset])
 
@@ -277,7 +281,7 @@ export function ExerciseShell({
                 Loading piano samples…
               </div>
             )}
-            {soundPreset === 'piano' && pianoLoadFailed && (
+            {pianoLoadFailed && (
               <div style={{
                 fontFamily: 'var(--font-body)',
                 fontSize: '11px',
@@ -287,7 +291,7 @@ export function ExerciseShell({
                 alignItems: 'center',
                 gap: '8px',
               }}>
-                ✕ Piano samples failed to load — pick a different instrument above.
+                ✕ Piano samples unavailable — switched to Sine synth.
               </div>
             )}
 
