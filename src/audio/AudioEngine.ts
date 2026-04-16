@@ -66,7 +66,7 @@ function getPianoSampler(): Tone.Sampler {
         A7: "A7.mp3",
         C8: "C8.mp3",
       },
-      baseUrl: "https://tonejs.github.io/audio/salamander/",
+      baseUrl: "/samples/salamander/",
       onload() {
         if (pianoLoadTimeout) {
           clearTimeout(pianoLoadTimeout);
