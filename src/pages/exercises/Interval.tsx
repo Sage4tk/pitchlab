@@ -7,7 +7,7 @@ import { IntervalExercise } from '@/exercises/IntervalExercise'
 import type { IntervalQuestion } from '@/exercises/IntervalExercise'
 import { AnswerGrid } from '@/components/AnswerGrid'
 import { PlayButton } from '@/components/PlayButton'
-import { playInterval, setSoundPreset as setAudioPreset, isPianoReady, onPianoReady } from '@/audio/AudioEngine'
+import { playInterval, setSoundPreset as setAudioPreset, isPianoReady, onPianoReady, isPianoFailed, onPianoError } from '@/audio/AudioEngine'
 import type { SoundPreset } from '@/audio/AudioEngine'
 import { useExerciseStore } from '@/store/useExerciseStore'
 import { INTERVAL_TIPS } from '@/data/feedbackTips'
@@ -129,12 +129,17 @@ export function ExerciseShell({
   const [selRounds, setSelRounds] = useState<3 | 5 | 10>(5)
   const { soundPreset, setSoundPreset: storeSoundPreset } = useExerciseStore()
   const [pianoSamplerReady, setPianoSamplerReady] = useState(() => isPianoReady())
+  const [pianoLoadFailed, setPianoLoadFailed] = useState(() => isPianoFailed())
 
   useEffect(() => {
-    if (soundPreset !== 'piano') { setPianoSamplerReady(true); return }
+    if (soundPreset !== 'piano') { setPianoSamplerReady(true); setPianoLoadFailed(false); return }
     if (isPianoReady()) { setPianoSamplerReady(true); return }
+    if (isPianoFailed()) { setPianoLoadFailed(true); return }
     setPianoSamplerReady(false)
-    return onPianoReady(() => setPianoSamplerReady(true))
+    setPianoLoadFailed(false)
+    const unsubReady = onPianoReady(() => { setPianoSamplerReady(true); setPianoLoadFailed(false) })
+    const unsubError = onPianoError(() => { setPianoLoadFailed(true) })
+    return () => { unsubReady(); unsubError() }
   }, [soundPreset])
 
   function handleSoundChange(preset: SoundPreset) {
@@ -257,8 +262,8 @@ export function ExerciseShell({
             {/* Exercise-specific extras */}
             {setupExtras}
 
-            {/* Piano loading indicator */}
-            {soundPreset === 'piano' && !pianoSamplerReady && (
+            {/* Piano loading / error indicator */}
+            {soundPreset === 'piano' && !pianoSamplerReady && !pianoLoadFailed && (
               <div style={{
                 fontFamily: 'var(--font-body)',
                 fontSize: '11px',
@@ -272,39 +277,57 @@ export function ExerciseShell({
                 Loading piano samples…
               </div>
             )}
+            {soundPreset === 'piano' && pianoLoadFailed && (
+              <div style={{
+                fontFamily: 'var(--font-body)',
+                fontSize: '11px',
+                letterSpacing: '0.06em',
+                color: '#e07070',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+              }}>
+                ✕ Piano samples failed to load — pick a different instrument above.
+              </div>
+            )}
 
             {/* Start */}
-            <button
-              onClick={() => onStartSession(selDiff, selRounds)}
-              disabled={soundPreset === 'piano' && !pianoSamplerReady}
-              style={{
-                padding: '16px',
-                background: soundPreset === 'piano' && !pianoSamplerReady ? 'var(--bg-surface-2)' : 'var(--accent)',
-                color: soundPreset === 'piano' && !pianoSamplerReady ? 'var(--text-muted)' : '#0F0D0B',
-                border: 'none',
-                borderRadius: 'var(--radius)',
-                fontFamily: 'var(--font-body)',
-                fontSize: '13px',
-                fontWeight: 700,
-                letterSpacing: '0.1em',
-                textTransform: 'uppercase',
-                cursor: soundPreset === 'piano' && !pianoSamplerReady ? 'not-allowed' : 'pointer',
-                boxShadow: soundPreset === 'piano' && !pianoSamplerReady ? 'none' : '0 4px 20px var(--accent-glow)',
-                transition: 'background 0.15s, transform 0.12s',
-              }}
-              onMouseEnter={e => {
-                if (soundPreset === 'piano' && !pianoSamplerReady) return
-                e.currentTarget.style.background = 'var(--accent-bright)'
-                e.currentTarget.style.transform = 'translateY(-1px)'
-              }}
-              onMouseLeave={e => {
-                if (soundPreset === 'piano' && !pianoSamplerReady) return
-                e.currentTarget.style.background = 'var(--accent)'
-                e.currentTarget.style.transform = 'translateY(0)'
-              }}
-            >
-              {soundPreset === 'piano' && !pianoSamplerReady ? 'Loading Samples…' : 'Begin Session'}
-            </button>
+            {(() => {
+              const blocked = soundPreset === 'piano' && (!pianoSamplerReady || pianoLoadFailed)
+              return (
+                <button
+                  onClick={() => onStartSession(selDiff, selRounds)}
+                  disabled={blocked}
+                  style={{
+                    padding: '16px',
+                    background: blocked ? 'var(--bg-surface-2)' : 'var(--accent)',
+                    color: blocked ? 'var(--text-muted)' : '#0F0D0B',
+                    border: 'none',
+                    borderRadius: 'var(--radius)',
+                    fontFamily: 'var(--font-body)',
+                    fontSize: '13px',
+                    fontWeight: 700,
+                    letterSpacing: '0.1em',
+                    textTransform: 'uppercase',
+                    cursor: blocked ? 'not-allowed' : 'pointer',
+                    boxShadow: blocked ? 'none' : '0 4px 20px var(--accent-glow)',
+                    transition: 'background 0.15s, transform 0.12s',
+                  }}
+                  onMouseEnter={e => {
+                    if (blocked) return
+                    e.currentTarget.style.background = 'var(--accent-bright)'
+                    e.currentTarget.style.transform = 'translateY(-1px)'
+                  }}
+                  onMouseLeave={e => {
+                    if (blocked) return
+                    e.currentTarget.style.background = 'var(--accent)'
+                    e.currentTarget.style.transform = 'translateY(0)'
+                  }}
+                >
+                  {soundPreset === 'piano' && !pianoSamplerReady && !pianoLoadFailed ? 'Loading Samples…' : 'Begin Session'}
+                </button>
+              )
+            })()}
           </div>
         </Card>
       </PageWrap>

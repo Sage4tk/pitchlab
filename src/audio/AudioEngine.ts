@@ -20,11 +20,23 @@ function getPolySynth(): Tone.PolySynth {
 // ── Piano (Salamander Grand Piano samples) ───────────────────────────────────
 let pianoSampler: Tone.Sampler | null = null
 let pianoReady = false
+let pianoFailed = false
 let pianoReadyCbs: (() => void)[] = []
+let pianoErrorCbs: (() => void)[] = []
+let pianoLoadTimeout: ReturnType<typeof setTimeout> | null = null
+
+function firePianoError() {
+  if (pianoLoadTimeout) { clearTimeout(pianoLoadTimeout); pianoLoadTimeout = null }
+  pianoFailed = true
+  pianoErrorCbs.forEach((cb) => cb())
+  pianoErrorCbs = []
+  pianoReadyCbs = []
+}
 
 function getPianoSampler(): Tone.Sampler {
   if (!pianoSampler) {
     pianoReady = false
+    pianoFailed = false
     pianoSampler = new Tone.Sampler({
       urls: {
         A0: 'A0.mp3',  C1: 'C1.mp3',  'F#1': 'Fs1.mp3',
@@ -38,16 +50,26 @@ function getPianoSampler(): Tone.Sampler {
       },
       baseUrl: 'https://tonejs.github.io/audio/salamander/',
       onload() {
+        if (pianoLoadTimeout) { clearTimeout(pianoLoadTimeout); pianoLoadTimeout = null }
         pianoReady = true
         pianoReadyCbs.forEach((cb) => cb())
         pianoReadyCbs = []
       },
+      onerror() {
+        firePianoError()
+      },
     }).toDestination()
+
+    // 15-second timeout fallback
+    pianoLoadTimeout = setTimeout(() => {
+      if (!pianoReady) firePianoError()
+    }, 15000)
   }
   return pianoSampler
 }
 
 export function isPianoReady(): boolean { return pianoReady }
+export function isPianoFailed(): boolean { return pianoFailed }
 
 export function onPianoReady(cb: () => void): () => void {
   if (pianoReady) { cb(); return () => {} }
@@ -55,6 +77,15 @@ export function onPianoReady(cb: () => void): () => void {
   return () => {
     const idx = pianoReadyCbs.indexOf(cb)
     if (idx >= 0) pianoReadyCbs.splice(idx, 1)
+  }
+}
+
+export function onPianoError(cb: () => void): () => void {
+  if (pianoFailed) { cb(); return () => {} }
+  pianoErrorCbs.push(cb)
+  return () => {
+    const idx = pianoErrorCbs.indexOf(cb)
+    if (idx >= 0) pianoErrorCbs.splice(idx, 1)
   }
 }
 
@@ -220,7 +251,10 @@ export async function playChordProgression(chordNotes: string[][], bpm = 70): Pr
 export function setSoundPreset(preset: SoundPreset): void {
   currentPreset = preset
   if (polySynth) { polySynth.dispose(); polySynth = null }
-  if (pianoSampler) { pianoSampler.dispose(); pianoSampler = null; pianoReady = false; pianoReadyCbs = [] }
+  if (pianoSampler) {
+    if (pianoLoadTimeout) { clearTimeout(pianoLoadTimeout); pianoLoadTimeout = null }
+    pianoSampler.dispose(); pianoSampler = null; pianoReady = false; pianoFailed = false; pianoReadyCbs = []; pianoErrorCbs = []
+  }
   if (guitarSampler) { guitarSampler.dispose(); guitarSampler = null; guitarReady = false; guitarReadyCbs = [] }
   if (preset === 'piano') getPianoSampler()
   if (preset === 'guitar') getGuitarSampler()
